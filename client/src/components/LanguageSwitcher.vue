@@ -62,20 +62,13 @@
 import { ref } from 'vue'
 import { useI18n } from '../composables/useI18n'
 
-const { currentLocale, setLocale, availableLocales, localeName } = useI18n()
+const { currentLocale, setLocale, availableLocales, localeName, getLocaleName } = useI18n()
 
 defineProps({ compact: { type: Boolean, default: false } })
 
 const isDropdownOpen = ref(false)
 
-const languageNames = {
-  en: 'English',
-  ja: '日本語'
-}
-
-const getLanguageName = (locale) => {
-  return languageNames[locale] || locale
-}
+const getLanguageName = (locale) => getLocaleName(locale)
 
 const toggleDropdown = () => {
   isDropdownOpen.value = !isDropdownOpen.value

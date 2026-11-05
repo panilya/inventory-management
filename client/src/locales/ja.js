@@ -16,6 +16,33 @@ export default {
     subtitle: '在庫管理システム'
   },
 
+  // Reports
+  reports: {
+    title: 'パフォーマンスレポート',
+    description: '四半期ごとの実績指標と月次トレンドを表示',
+    loading: 'レポートを読み込み中...',
+    loadError: 'レポートの読み込みに失敗しました: {message}',
+    noData: '選択したフィルターに該当するレポートデータがありません',
+    quarterlyPerformance: '四半期実績',
+    monthlyRevenueTrend: '月次売上推移',
+    monthOverMonth: '前月比分析',
+    quarter: '四半期',
+    month: '月',
+    totalOrders: '総注文数',
+    totalRevenue: '総売上',
+    avgOrderValue: '平均注文額',
+    fulfillmentRate: 'フルフィルメント率',
+    orders: '注文数',
+    revenue: '売上',
+    change: '増減',
+    growthRate: '成長率',
+    notApplicable: '該当なし',
+    totalRevenueYtd: '総売上（年初来）',
+    avgMonthlyRevenue: '月平均売上',
+    totalOrdersYtd: '総注文数（年初来）',
+    bestQuarter: '最高実績の四半期'
+  },
+
   // Dashboard
   dashboard: {
     title: '概要',
@@ -311,13 +338,23 @@ export default {
     priority: '優先度',
     dueDate: '期限',
     addTask: 'タスクを追加',
-    noTasks: 'タスクがありません。上記からタスクを追加してください！'
+    noTasks: 'タスクがありません。上記からタスクを追加してください！',
+    today: '今日',
+    tomorrow: '明日',
+    yesterday: '昨日',
+    daysAgo: '{count}日前',
+    inDays: '{count}日後',
+    completed: '完了',
+    overdue: '期限超過',
+    dueSoon: 'もうすぐ期限',
+    upcoming: '予定'
   },
 
   // Language
   language: {
     english: 'English',
     japanese: '日本語',
+    german: 'ドイツ語',
     selectLanguage: '言語を選択'
   },
 

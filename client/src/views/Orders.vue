@@ -67,7 +67,7 @@
                   </td>
                   <td class="col-date nowrap">{{ formatDate(order.order_date) }}</td>
                   <td class="col-date nowrap">{{ formatDate(order.expected_delivery) }}</td>
-                  <td class="col-value num nowrap"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+                  <td class="col-value num nowrap"><strong>{{ formatCurrency(order.total_value, currentCurrency) }}</strong></td>
                 </tr>
                 <!-- Expanded detail row: part of the table flow, so it can never be clipped by the scroll container -->
                 <tr v-if="isExpanded(order.id)" class="items-row">
@@ -75,7 +75,7 @@
                     <div class="items-list">
                       <div v-for="(item, idx) in order.items" :key="`${order.id}-${idx}`" class="item-entry">
                         <span class="item-name">{{ translateProductName(item.name) }}</span>
-                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_price }}</span>
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ formatCurrencyWithDecimals(item.unit_price, currentCurrency, 2) }}</span>
                       </div>
                     </div>
                   </td>
@@ -94,15 +94,13 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
+import { formatCurrency, formatCurrencyWithDecimals } from '../utils/currency'
 
 export default {
   name: 'Orders',
   setup() {
-    const { t, currentCurrency, translateProductName, translateCustomerName } = useI18n()
+    const { t, currentCurrency, intlLocale, translateProductName, translateCustomerName } = useI18n()
 
-    const currencySymbol = computed(() => {
-      return currentCurrency.value === 'JPY' ? '¥' : '$'
-    })
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
@@ -166,9 +164,7 @@ export default {
     }
 
     const formatDate = (dateString) => {
-      const { currentLocale } = useI18n()
-      const locale = currentLocale.value === 'ja' ? 'ja-JP' : 'en-US'
-      return new Date(dateString).toLocaleDateString(locale, {
+      return new Date(dateString).toLocaleDateString(intlLocale.value, {
         year: 'numeric',
         month: 'short',
         day: 'numeric'
@@ -188,7 +184,9 @@ export default {
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
-      currencySymbol,
+      currentCurrency,
+      formatCurrency,
+      formatCurrencyWithDecimals,
       translateProductName,
       translateCustomerName
     }

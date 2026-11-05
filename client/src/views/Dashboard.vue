@@ -137,7 +137,7 @@
                 <div class="h-bar-container">
                   <div class="h-bar" :style="{ width: (cat.value / maxCategoryValue * 100) + '%' }"></div>
                 </div>
-                <div class="h-bar-value">{{ selectedCurrency === 'JPY' ? formatCurrency(cat.value, selectedCurrency) : `$${(cat.value / 1000).toFixed(1)}K` }}</div>
+                <div class="h-bar-value">{{ selectedCurrency === 'USD' ? `$${(cat.value / 1000).toFixed(1)}K` : formatCurrency(cat.value, selectedCurrency) }}</div>
               </div>
             </div>
             <div v-else class="no-data">{{ t('dashboard.inventoryShortages.noData') }}</div>
@@ -298,7 +298,7 @@ export default {
     BacklogDetailModal,
   },
   setup() {
-    const { t, currentCurrency, translateProductName, translateWarehouse } = useI18n()
+    const { t, currentCurrency, intlLocale, translateProductName, translateWarehouse } = useI18n()
     const loading = ref(true)
     const error = ref(null)
     const summary = ref({})
@@ -622,10 +622,8 @@ export default {
 
     const formatDate = (dateString) => {
       if (!dateString) return '-'
-      const { currentLocale } = useI18n()
-      const locale = currentLocale.value === 'ja' ? 'ja-JP' : 'en-US'
       const date = new Date(dateString)
-      return date.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' })
+      return date.toLocaleDateString(intlLocale.value, { month: 'short', day: 'numeric', year: 'numeric' })
     }
 
     const showProductDetail = (product) => {
