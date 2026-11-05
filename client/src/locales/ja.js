@@ -5,6 +5,12 @@ export default {
     inventory: '在庫',
     orders: '注文',
     finance: '財務',
+    reports: 'レポート',
+    main: 'メインナビゲーション',
+    collapse: '折りたたむ',
+    expand: 'サイドバーを展開',
+    openMenu: 'ナビゲーションを開く',
+    closeMenu: 'ナビゲーションを閉じる',
     demandForecast: '需要予測',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
@@ -111,6 +117,7 @@ export default {
     avgOrderValue: '平均注文額',
     onTimeDelivery: '定時配達',
     itemsCount: '{count}件',
+    itemsCountOne: '{count}件',
     quantity: '数量',
     table: {
       orderNumber: '注文番号',
@@ -175,6 +182,7 @@ export default {
     stableDemand: '需要安定',
     decreasingDemand: '需要減少',
     itemsCount: '{count}件',
+    itemsCountOne: '{count}件',
     more: 'さらに...',
     demandForecasts: '需要予測',
     table: {
@@ -190,6 +198,8 @@ export default {
 
   // Filters
   filters: {
+    title: 'フィルター',
+    reset: 'フィルターをリセット',
     timePeriod: '期間',
     location: '場所',
     category: 'カテゴリ',

@@ -5,70 +5,76 @@ export default {
     inventory: 'Inventory',
     orders: 'Orders',
     finance: 'Finance',
-    demandForecast: 'Demand Forecast',
+    reports: 'Reports',
+    main: 'Main navigation',
+    collapse: 'Collapse',
+    expand: 'Expand sidebar',
+    openMenu: 'Open navigation',
+    closeMenu: 'Close navigation',
+    demandForecast: 'Demand forecast',
     companyName: 'Catalyst Components',
-    subtitle: 'Inventory Management System'
+    subtitle: 'Inventory management'
   },
 
   // Dashboard
   dashboard: {
     title: 'Overview',
     kpi: {
-      title: 'Key Performance Indicators',
-      inventoryTurnover: 'Inventory Turnover Rate',
-      ordersFulfilled: 'Orders Fulfilled',
-      orderFillRate: 'Order Fill Rate',
-      revenue: 'Revenue (Orders)',
-      revenueYTD: 'Revenue (Orders) YTD',
-      revenueMTD: 'Revenue (Orders) MTD',
-      avgProcessingTime: 'Avg Processing Time (Days)',
+      title: 'Key performance indicators',
+      inventoryTurnover: 'Inventory turnover rate',
+      ordersFulfilled: 'Orders fulfilled',
+      orderFillRate: 'Order fill rate',
+      revenue: 'Revenue (orders)',
+      revenueYTD: 'Revenue (orders) YTD',
+      revenueMTD: 'Revenue (orders) MTD',
+      avgProcessingTime: 'Avg processing time (days)',
       goal: 'Goal'
     },
     summary: {
       title: 'Summary'
     },
     orderHealth: {
-      title: 'Order Health',
-      totalOrders: 'Total Orders',
+      title: 'Order health',
+      totalOrders: 'Total orders',
       revenue: 'Revenue',
-      avgOrderValue: 'Avg Order Value',
-      onTimeRate: 'On-Time Rate',
-      avgFulfillmentDays: 'Avg Fulfillment (Days)',
+      avgOrderValue: 'Avg order value',
+      onTimeRate: 'On-time rate',
+      avgFulfillmentDays: 'Avg fulfillment (days)',
       total: 'Total'
     },
     ordersByMonth: {
-      title: 'Orders by Month'
+      title: 'Orders by month'
     },
     inventoryValue: {
-      title: 'Inventory Value by Category'
+      title: 'Inventory value by category'
     },
     inventoryShortages: {
-      title: 'Inventory Shortages',
+      title: 'Inventory shortages',
       noShortages: 'No inventory shortages - all orders can be fulfilled!',
       noData: 'No inventory data for selected filters',
       orderId: 'Order ID',
       sku: 'SKU',
-      itemName: 'Item Name',
-      quantityNeeded: 'Quantity Needed',
-      quantityAvailable: 'Quantity Available',
+      itemName: 'Item name',
+      quantityNeeded: 'Quantity needed',
+      quantityAvailable: 'Quantity available',
       shortage: 'Shortage',
-      daysDelayed: 'Days Delayed',
+      daysDelayed: 'Days delayed',
       priority: 'Priority',
       unitsShort: 'units short',
       days: 'days'
     },
     topProducts: {
-      title: 'Top Products by Revenue',
+      title: 'Top products by revenue',
       sku: 'SKU',
       product: 'Product',
       category: 'Category',
       warehouse: 'Warehouse',
-      stockStatus: 'Stock Status',
+      stockStatus: 'Stock status',
       revenue: 'Revenue',
-      unitsOrdered: 'Units Ordered',
-      firstOrder: 'First Order',
-      inStock: 'In Stock',
-      lowStock: 'Low Stock'
+      unitsOrdered: 'Units ordered',
+      firstOrder: 'First order',
+      inStock: 'In stock',
+      lowStock: 'Low stock'
     }
   },
 
@@ -76,26 +82,26 @@ export default {
   inventory: {
     title: 'Inventory',
     description: 'Track and manage all inventory items',
-    stockLevels: 'Stock Levels',
+    stockLevels: 'Stock levels',
     skus: 'SKUs',
     searchPlaceholder: 'Search by item name...',
     clearSearch: 'Clear search',
-    totalItems: 'Total Items',
-    totalValue: 'Total Value',
-    lowStockItems: 'Low Stock Items',
+    totalItems: 'Total items',
+    totalValue: 'Total value',
+    lowStockItems: 'Low stock items',
     warehouses: 'Warehouses',
     table: {
       sku: 'SKU',
-      itemName: 'Item Name',
+      itemName: 'Item name',
       name: 'Name',
       category: 'Category',
       warehouse: 'Warehouse',
       quantity: 'Quantity',
-      quantityOnHand: 'Quantity on Hand',
-      reorderPoint: 'Reorder Point',
-      unitCost: 'Unit Cost',
-      unitPrice: 'Unit Price',
-      totalValue: 'Total Value',
+      quantityOnHand: 'Quantity on hand',
+      reorderPoint: 'Reorder point',
+      unitCost: 'Unit cost',
+      unitPrice: 'Unit price',
+      totalValue: 'Total value',
       location: 'Location',
       status: 'Status'
     }
@@ -105,60 +111,61 @@ export default {
   orders: {
     title: 'Orders',
     description: 'View and manage customer orders',
-    allOrders: 'All Orders',
-    totalOrders: 'Total Orders',
-    totalRevenue: 'Total Revenue',
-    avgOrderValue: 'Avg Order Value',
-    onTimeDelivery: 'On-Time Delivery',
+    allOrders: 'All orders',
+    totalOrders: 'Total orders',
+    totalRevenue: 'Total revenue',
+    avgOrderValue: 'Avg order value',
+    onTimeDelivery: 'On-time delivery',
     itemsCount: '{count} items',
+    itemsCountOne: '{count} item',
     quantity: 'Qty',
     table: {
-      orderNumber: 'Order Number',
+      orderNumber: 'Order number',
       orderId: 'Order ID',
-      orderDate: 'Order Date',
+      orderDate: 'Order date',
       date: 'Date',
       customer: 'Customer',
       category: 'Category',
       warehouse: 'Warehouse',
       items: 'Items',
       value: 'Value',
-      totalValue: 'Total Value',
+      totalValue: 'Total value',
       status: 'Status',
-      expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      expectedDelivery: 'Expected delivery',
+      actualDelivery: 'Actual delivery'
     }
   },
 
   // Finance/Spending
   finance: {
-    title: 'Finance Dashboard',
+    title: 'Finance dashboard',
     description: 'Track revenue, costs, and financial performance',
-    totalRevenue: 'Total Revenue',
-    totalCosts: 'Total Costs',
-    netProfit: 'Net Profit',
-    avgOrderValue: 'Avg Order Value',
+    totalRevenue: 'Total revenue',
+    totalCosts: 'Total costs',
+    netProfit: 'Net profit',
+    avgOrderValue: 'Avg order value',
     fromOrders: 'From {count} orders',
-    costBreakdown: 'Procurement + Operational + Labor + Overhead',
+    costBreakdown: 'Procurement + operational + labor + overhead',
     margin: 'margin',
     perOrderRevenue: 'Per order revenue',
     revenueVsCosts: {
-      title: 'Monthly Revenue vs Costs',
+      title: 'Monthly revenue vs costs',
       revenue: 'Revenue',
-      costs: 'Total Costs'
+      costs: 'Total costs'
     },
     monthlyCostFlow: {
-      title: 'Monthly Cost Flow',
+      title: 'Monthly cost flow',
       procurement: 'Procurement',
       operational: 'Operational',
       labor: 'Labor',
       overhead: 'Overhead'
     },
     categorySpending: {
-      title: 'Spending by Category',
+      title: 'Spending by category',
       ofTotal: 'of total'
     },
     transactions: {
-      title: 'Recent Transactions',
+      title: 'Recent transactions',
       id: 'ID',
       description: 'Description',
       vendor: 'Vendor',
@@ -169,19 +176,20 @@ export default {
 
   // Demand Forecast
   demand: {
-    title: 'Demand Forecast',
+    title: 'Demand forecast',
     description: 'Analyze demand trends and forecasts',
-    increasingDemand: 'Increasing Demand',
-    stableDemand: 'Stable Demand',
-    decreasingDemand: 'Decreasing Demand',
+    increasingDemand: 'Increasing demand',
+    stableDemand: 'Stable demand',
+    decreasingDemand: 'Decreasing demand',
     itemsCount: '{count} items',
+    itemsCountOne: '{count} item',
     more: 'more...',
-    demandForecasts: 'Demand Forecasts',
+    demandForecasts: 'Demand forecasts',
     table: {
       sku: 'SKU',
-      itemName: 'Item Name',
-      currentDemand: 'Current Demand',
-      forecastedDemand: 'Forecasted Demand',
+      itemName: 'Item name',
+      currentDemand: 'Current demand',
+      forecastedDemand: 'Forecasted demand',
       change: 'Change',
       trend: 'Trend',
       period: 'Period'
@@ -190,12 +198,14 @@ export default {
 
   // Filters
   filters: {
-    timePeriod: 'Time Period',
+    title: 'Filters',
+    reset: 'Reset filters',
+    timePeriod: 'Time period',
     location: 'Location',
     category: 'Category',
-    orderStatus: 'Order Status',
+    orderStatus: 'Order status',
     all: 'All',
-    allMonths: 'All Months'
+    allMonths: 'All months'
   },
 
   // Statuses
@@ -204,16 +214,16 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
-    inStock: 'In Stock',
-    lowStock: 'Low Stock',
+    inStock: 'In stock',
+    lowStock: 'Low stock',
     adequate: 'Adequate'
   },
 
   // Trends
   trends: {
-    increasing: 'increasing',
-    stable: 'stable',
-    decreasing: 'decreasing'
+    increasing: 'Increasing',
+    stable: 'Stable',
+    decreasing: 'Decreasing'
   },
 
   // Priority
@@ -276,31 +286,31 @@ export default {
 
   // Profile Menu
   profile: {
-    profileDetails: 'Profile Details',
-    myTasks: 'My Tasks',
+    profileDetails: 'Profile details',
+    myTasks: 'My tasks',
     logout: 'Logout'
   },
 
   // Profile Details Modal
   profileDetails: {
-    title: 'Profile Details',
+    title: 'Profile details',
     email: 'Email',
     department: 'Department',
     location: 'Location',
     phone: 'Phone',
-    joinDate: 'Join Date',
+    joinDate: 'Join date',
     employeeId: 'Employee ID',
     close: 'Close'
   },
 
   // Tasks Modal
   tasks: {
-    title: 'My Tasks',
-    taskTitle: 'Task Title',
+    title: 'My tasks',
+    taskTitle: 'Task title',
     taskTitlePlaceholder: 'Enter task title...',
     priority: 'Priority',
-    dueDate: 'Due Date',
-    addTask: 'Add Task',
+    dueDate: 'Due date',
+    addTask: 'Add task',
     noTasks: 'No tasks yet. Add your first task above!'
   },
 
@@ -308,7 +318,7 @@ export default {
   language: {
     english: 'English',
     japanese: 'Japanese',
-    selectLanguage: 'Select Language'
+    selectLanguage: 'Select language'
   },
 
   // Common
@@ -316,7 +326,7 @@ export default {
     loading: 'Loading...',
     error: 'Error',
     noData: 'No data available',
-    viewDetails: 'View Details',
+    viewDetails: 'View details',
     close: 'Close',
     save: 'Save',
     cancel: 'Cancel',

@@ -39,37 +39,48 @@
                 <th class="col-customer">{{ t('orders.table.customer') }}</th>
                 <th class="col-items">{{ t('orders.table.items') }}</th>
                 <th class="col-status">{{ t('orders.table.status') }}</th>
-                <th class="col-date">{{ t('orders.table.orderDate') }}</th>
-                <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
-                <th class="col-value">{{ t('orders.table.totalValue') }}</th>
+                <th class="col-date nowrap">{{ t('orders.table.orderDate') }}</th>
+                <th class="col-date nowrap">{{ t('orders.table.expectedDelivery') }}</th>
+                <th class="col-value num">{{ t('orders.table.totalValue') }}</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="order in orders" :key="order.id">
-                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
-                <td class="col-customer">{{ translateCustomerName(order.customer) }}</td>
-                <td class="col-items">
-                  <details class="items-details">
-                    <summary class="items-summary">
-                      {{ t('orders.itemsCount', { count: order.items.length }) }}
-                    </summary>
-                    <div class="items-dropdown">
-                      <div v-for="(item, idx) in order.items" :key="idx" class="item-entry">
+              <template v-for="order in orders" :key="order.id">
+                <tr :class="{ 'row-open': isExpanded(order.id) }">
+                  <td class="col-order-number nowrap"><strong>{{ order.order_number }}</strong></td>
+                  <td class="col-customer">{{ translateCustomerName(order.customer) }}</td>
+                  <td class="col-items">
+                    <button
+                      type="button"
+                      class="items-toggle"
+                      :aria-expanded="isExpanded(order.id)"
+                      @click="toggleItems(order.id)"
+                    >
+                      <svg class="chev" viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5" /></svg>
+                      {{ itemsLabel(order.items.length) }}
+                    </button>
+                  </td>
+                  <td class="col-status">
+                    <span :class="['badge', getOrderStatusClass(order.status)]">
+                      {{ t(`status.${order.status.toLowerCase()}`) }}
+                    </span>
+                  </td>
+                  <td class="col-date nowrap">{{ formatDate(order.order_date) }}</td>
+                  <td class="col-date nowrap">{{ formatDate(order.expected_delivery) }}</td>
+                  <td class="col-value num nowrap"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+                </tr>
+                <!-- Expanded detail row: part of the table flow, so it can never be clipped by the scroll container -->
+                <tr v-if="isExpanded(order.id)" class="items-row">
+                  <td colspan="7">
+                    <div class="items-list">
+                      <div v-for="(item, idx) in order.items" :key="`${order.id}-${idx}`" class="item-entry">
                         <span class="item-name">{{ translateProductName(item.name) }}</span>
                         <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_price }}</span>
                       </div>
                     </div>
-                  </details>
-                </td>
-                <td class="col-status">
-                  <span :class="['badge', getOrderStatusClass(order.status)]">
-                    {{ t(`status.${order.status.toLowerCase()}`) }}
-                  </span>
-                </td>
-                <td class="col-date">{{ formatDate(order.order_date) }}</td>
-                <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
-                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
-              </tr>
+                  </td>
+                </tr>
+              </template>
             </tbody>
           </table>
         </div>
@@ -129,6 +140,17 @@ export default {
       loadOrders()
     })
 
+    const itemsLabel = (count) => t(count === 1 ? 'orders.itemsCountOne' : 'orders.itemsCount', { count })
+
+    // UI-only state: ids of orders whose item list is expanded
+    const expandedIds = ref([])
+    const isExpanded = (id) => expandedIds.value.includes(id)
+    const toggleItems = (id) => {
+      expandedIds.value = isExpanded(id)
+        ? expandedIds.value.filter(x => x !== id)
+        : [...expandedIds.value, id]
+    }
+
     const getOrdersByStatus = (status) => {
       return orders.value.filter(order => order.status === status)
     }
@@ -160,6 +182,9 @@ export default {
       loading,
       error,
       orders,
+      itemsLabel,
+      isExpanded,
+      toggleItems,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -172,94 +197,62 @@ export default {
 </script>
 
 <style scoped>
-/* Fixed table layout to prevent column shifting */
+/* Fixed layout keeps columns stable when an item list expands; the table
+   scrolls inside its panel on narrow screens (min-width below). */
 .orders-table {
   table-layout: fixed;
   width: 100%;
+  min-width: 860px;
 }
 
-/* Column widths */
-.col-order-number {
-  width: 130px;
-}
+.col-order-number { width: 130px; }
+.col-customer { width: 180px; }
+.col-items { width: 150px; }
+.col-status { width: 120px; }
+.col-date { width: 130px; }
+.col-value { width: 110px; }
 
-.col-customer {
-  width: 180px;
-}
-
-.col-items {
-  width: 200px;
-}
-
-.col-status {
-  width: 130px;
-}
-
-.col-date {
-  width: 140px;
-}
-
-.col-value {
-  width: 120px;
-}
-
-/* Items details styling */
-.items-details {
-  position: relative;
-}
-
-.items-summary {
+.items-toggle {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
   cursor: pointer;
-  color: #3b82f6;
-  font-weight: 500;
-  list-style: none;
-  user-select: none;
-  display: inline-block;
+  color: var(--info-ink);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.items-summary::-webkit-details-marker {
-  display: none;
-}
-
-.items-summary::before {
-  content: '▶';
-  display: inline-block;
-  margin-right: 0.375rem;
-  font-size: 0.75rem;
-  transition: transform 0.2s;
-}
-
-.items-details[open] .items-summary::before {
-  transform: rotate(90deg);
-}
-
-.items-summary:hover {
-  color: #2563eb;
+.items-toggle:hover {
   text-decoration: underline;
 }
 
-/* Dropdown container */
-.items-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  margin-top: 0.5rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  padding: 0.75rem;
-  z-index: 10;
-  min-width: 300px;
-  max-width: 400px;
+.chev {
+  transition: transform 0.12s;
+}
+
+.items-toggle[aria-expanded='true'] .chev {
+  transform: rotate(90deg);
+}
+
+.items-row > td {
+  background: var(--steel-100);
+  padding: 4px 16px 12px 40px;
+}
+
+.items-list {
+  max-width: 480px;
 }
 
 .item-entry {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.5rem;
-  border-bottom: 1px solid #f1f5f9;
+  gap: 2px;
+  padding: 8px;
+  border-bottom: 1px solid var(--rule);
 }
 
 .item-entry:last-child {
@@ -267,13 +260,13 @@ export default {
 }
 
 .item-name {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #0f172a;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .item-meta {
-  font-size: 0.813rem;
-  color: #64748b;
+  font-size: 13px;
+  color: var(--ink-muted);
 }
 </style>

@@ -1,7 +1,11 @@
 <template>
-  <div class="profile-menu">
+  <div class="profile-menu" :class="{ 'is-compact': compact }">
     <button
       class="profile-button"
+      :title="compact ? currentUser.name : undefined"
+      :aria-label="currentUser.name"
+      aria-haspopup="menu"
+      :aria-expanded="isDropdownOpen"
       @click="toggleDropdown"
       @blur="handleBlur"
     >
@@ -81,6 +85,8 @@ import { useI18n } from '../composables/useI18n'
 const { currentUser, logout, getInitials } = useAuth()
 const { t } = useI18n()
 
+defineProps({ compact: { type: Boolean, default: false } })
+
 const isDropdownOpen = ref(false)
 const emit = defineEmits(['show-profile-details', 'show-tasks'])
 
@@ -116,165 +122,134 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
-.profile-menu {
-  position: relative;
-}
+/* Sidebar footer control on graphite. Dropdown opens upward and aligns left. */
+.profile-menu { position: relative; }
 
 .profile-button {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0.5rem 0.875rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  gap: 12px;
+  height: 44px;
+  padding: 0 8px;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-control);
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
+  transition: background 120ms ease;
+  color: var(--graphite-300);
 }
-
-.profile-button:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-}
+.profile-button:hover { background: var(--graphite-700); }
+.profile-button:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
 
 .avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.75rem;
-  letter-spacing: 0.025em;
-}
-
-.profile-name {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #0f172a;
-}
-
-.chevron {
-  color: #64748b;
-  transition: transform 0.2s ease;
-}
-
-.chevron-open {
-  transform: rotate(180deg);
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
-  min-width: 280px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  overflow: hidden;
-}
-
-.dropdown-header {
-  padding: 1rem;
-  display: flex;
-  gap: 0.875rem;
-  align-items: center;
-  background: #f8fafc;
-}
-
-.avatar-large {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-control);
+  background: var(--steel-200);
+  color: var(--ink);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.025em;
+  font-size: 12px;
   flex-shrink: 0;
 }
-
-.user-info {
+.profile-name {
   flex: 1;
-  min-width: 0;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+.chevron { flex-shrink: 0; transition: transform 120ms ease; transform: rotate(180deg); }
+.chevron-open { transform: rotate(0deg); }
 
+.is-compact .profile-button { justify-content: center; padding: 0; }
+.is-compact .profile-name,
+.is-compact .chevron { display: none; }
+
+.dropdown-menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  min-width: 260px;
+  max-width: calc(100vw - 32px);
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-pop);
+  z-index: 1000;
+  overflow: hidden;
+}
+.dropdown-header {
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: var(--steel-100);
+}
+.avatar-large {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-control);
+  background: var(--graphite-900);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.user-info { flex: 1; min-width: 0; }
 .user-name {
+  font-family: var(--font-display);
   font-weight: 600;
-  color: #0f172a;
-  font-size: 0.938rem;
-  margin-bottom: 0.25rem;
+  color: var(--ink);
+  font-size: 17px;
+  line-height: 1.2;
 }
-
 .user-email {
-  font-size: 0.813rem;
-  color: #64748b;
+  font-size: 13px;
+  color: var(--ink-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-.dropdown-divider {
-  height: 1px;
-  background: #e2e8f0;
-  margin: 0.5rem 0;
-}
-
+.dropdown-divider { height: 1px; background: var(--rule); margin: 4px 0; }
 .dropdown-item {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: 12px;
+  height: 40px;
+  padding: 0 16px;
   background: none;
   border: none;
   text-align: left;
   cursor: pointer;
-  transition: background 0.15s ease;
-  font-family: inherit;
-  font-size: 0.875rem;
+  transition: background 120ms ease;
+  font-size: 15px;
   font-weight: 500;
-  color: #334155;
+  color: var(--ink-body);
 }
-
-.dropdown-item:hover {
-  background: #f8fafc;
-}
-
-.dropdown-item svg {
-  color: #64748b;
-  flex-shrink: 0;
-}
-
-.dropdown-item.logout {
-  color: #dc2626;
-}
-
-.dropdown-item.logout svg {
-  color: #dc2626;
-}
-
-.dropdown-item.logout:hover {
-  background: #fef2f2;
-}
-
+.dropdown-item:hover { background: var(--steel-100); }
+.dropdown-item svg { color: var(--ink-muted); flex-shrink: 0; }
+.dropdown-item.logout,
+.dropdown-item.logout svg { color: var(--bad-ink); }
+.dropdown-item.logout:hover { background: var(--bad-soft); }
 .task-badge {
   margin-left: auto;
-  background: #2563eb;
-  color: white;
-  font-size: 0.75rem;
+  background: var(--signal-soft);
+  color: var(--signal-ink);
+  font-size: 12px;
   font-weight: 600;
-  padding: 0.125rem 0.5rem;
-  border-radius: 12px;
+  padding: 0 8px;
+  border-radius: var(--radius-badge);
   min-width: 20px;
   text-align: center;
 }
