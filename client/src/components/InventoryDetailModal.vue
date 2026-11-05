@@ -4,39 +4,32 @@
       <div v-if="isOpen && inventoryItem" class="modal-overlay" @click="close">
         <div class="modal-container" @click.stop>
           <div class="modal-header">
-            <h3 class="modal-title">Inventory Item Details</h3>
-            <button class="close-button" @click="close">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <h3 class="modal-title">Inventory item details</h3>
+            <button class="close-button" @click="close" aria-label="Close">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
               </svg>
             </button>
           </div>
 
           <div class="modal-body">
             <div class="item-header">
-              <div class="item-icon" :class="getStockIconClass()">
-                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                  <rect x="8" y="12" width="32" height="28" rx="2" stroke="currentColor" stroke-width="2.5"/>
-                  <path d="M16 8V16M32 8V16M8 20H40" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                  <path d="M16 28H32M16 34H24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                </svg>
-              </div>
               <div class="item-title-section">
                 <h4 class="item-name">{{ translateProductName(inventoryItem.name) }}</h4>
                 <div class="item-sku">SKU: {{ inventoryItem.sku }}</div>
               </div>
-              <span class="stock-badge" :class="getStockStatusClass()">
+              <span class="status-pill" :class="getStockStatusClass()">
                 {{ getStockStatus() }}
               </span>
             </div>
 
-            <div class="stock-summary">
+            <div class="summary-grid">
               <div class="summary-card primary">
                 <div class="summary-label">Quantity on Hand</div>
                 <div class="summary-value">{{ inventoryItem.quantity_on_hand }} units</div>
               </div>
-              <div class="summary-card" :class="getSummaryCardClass()">
-                <div class="summary-label">Stock Level</div>
+              <div class="summary-card" :class="getStockStatusClass()">
+                <div class="summary-label">Stock level</div>
                 <div class="summary-value">{{ stockPercentage }}%</div>
                 <div class="summary-subtitle">vs. reorder point</div>
               </div>
@@ -54,26 +47,26 @@
               </div>
 
               <div class="info-item">
-                <div class="info-label">Reorder Point</div>
+                <div class="info-label">Reorder point</div>
                 <div class="info-value">{{ inventoryItem.reorder_point }} units</div>
               </div>
 
               <div class="info-item">
-                <div class="info-label">Units Remaining</div>
+                <div class="info-label">Units remaining</div>
                 <div class="info-value">
-                  <span :style="{ color: inventoryItem.quantity_on_hand <= inventoryItem.reorder_point ? '#ef4444' : '#10b981' }">
+                  <span :style="{ color: inventoryItem.quantity_on_hand <= inventoryItem.reorder_point ? 'var(--bad-ink)' : 'var(--ok-ink)' }">
                     {{ inventoryItem.quantity_on_hand - inventoryItem.reorder_point }} units
                   </span>
                 </div>
               </div>
 
               <div class="info-item">
-                <div class="info-label">Unit Cost</div>
+                <div class="info-label">Unit cost</div>
                 <div class="info-value">{{ currencySymbol }}{{ inventoryItem.unit_cost.toFixed(2) }}</div>
               </div>
 
               <div class="info-item">
-                <div class="info-label">Total Value</div>
+                <div class="info-label">Total value</div>
                 <div class="info-value total-value">
                   {{ currencySymbol }}{{ totalValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) }}
                 </div>
@@ -96,7 +89,7 @@
           </div>
 
           <div class="modal-footer">
-            <button class="btn-secondary" @click="close">Close</button>
+            <button class="btn" @click="close">Close</button>
           </div>
         </div>
       </div>
@@ -175,27 +168,26 @@ const getSummaryCardClass = () => {
 </script>
 
 <style scoped>
+/* Shared modal family styles (kept identical across the six modals). */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgba(28, 33, 39, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  padding: 1rem;
+  padding: 16px; /* 16px viewport margin on mobile */
 }
 
 .modal-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  background: var(--panel);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-pop);
   max-width: 700px;
   width: 100%;
-  max-height: 90vh;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -205,71 +197,90 @@ const getSummaryCardClass = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  gap: 16px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--rule);
 }
 
 .modal-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+  letter-spacing: -0.005em;
+  color: var(--ink);
 }
 
 .close-button {
-  background: none;
-  border: none;
-  color: #64748b;
-  cursor: pointer;
-  padding: 0.5rem;
-  display: flex;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
-  transition: all 0.15s ease;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-control);
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--steel-100);
+  color: var(--ink);
 }
 
 .modal-body {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  padding: 2rem;
+  padding: 24px;
 }
 
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--rule);
+}
+
+/* Detail rows: muted label over tabular value, 16px row / 24px column gaps */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+  gap: 16px 24px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+.info-value {
+  font-size: 15px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Identity header: name, SKU and status badge */
 .item-header {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
-  margin-bottom: 1.5rem;
-}
-
-.item-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  flex-shrink: 0;
-}
-
-.item-icon.success-icon {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-}
-
-.item-icon.warning-icon {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-}
-
-.item-icon.danger-icon {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 24px;
 }
 
 .item-title-section {
@@ -278,159 +289,85 @@ const getSummaryCardClass = () => {
 }
 
 .item-name {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .item-sku {
-  font-size: 0.875rem;
-  color: #64748b;
-  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
 }
 
-.stock-badge {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
+.status-pill {
   flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: var(--radius-badge);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 20px;
+  background: var(--steel-200);
+  color: var(--ink-body);
 }
 
-.stock-badge.success {
-  background: #d1fae5;
-  color: #065f46;
-}
+.status-pill.success, .status-pill.completed { background: var(--ok-soft); color: var(--ok-ink); }
+.status-pill.warning, .status-pill.medium, .status-pill.urgent { background: var(--signal-soft); color: var(--signal-ink); }
+.status-pill.danger, .status-pill.high, .status-pill.overdue { background: var(--bad-soft); color: var(--bad-ink); }
+.status-pill.info, .status-pill.low, .status-pill.upcoming { background: var(--info-soft); color: var(--info-ink); }
 
-.stock-badge.warning {
-  background: #fed7aa;
-  color: #92400e;
-}
-
-.stock-badge.danger {
-  background: #fecaca;
-  color: #991b1b;
-}
-
-.stock-summary {
+/* Summary tiles: flat panel with a 3px left status rule */
+.summary-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .summary-card {
-  padding: 1.25rem;
-  border-radius: 10px;
-  border: 2px solid;
+  padding: 16px;
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--ink-muted);
+  border-radius: var(--radius-panel);
+  background: var(--steel-100);
 }
 
-.summary-card.primary {
-  border-color: #bfdbfe;
-  background: #eff6ff;
-}
-
-.summary-card.success-card {
-  border-color: #a7f3d0;
-  background: #d1fae5;
-}
-
-.summary-card.warning-card {
-  border-color: #fed7aa;
-  background: #fffbeb;
-}
-
-.summary-card.danger-card {
-  border-color: #fecaca;
-  background: #fef2f2;
-}
+.summary-card.danger { border-left-color: var(--bad); }
+.summary-card.warning { border-left-color: var(--signal); }
+.summary-card.success { border-left-color: var(--ok); }
+.summary-card.primary { border-left-color: var(--info); }
 
 .summary-label {
-  font-size: 0.813rem;
+  font-size: 13px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #64748b;
-  margin-bottom: 0.5rem;
+  color: var(--ink-muted);
+  margin-bottom: 4px;
 }
 
 .summary-value {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #0f172a;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 32px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
+
+.summary-card.danger .summary-value { color: var(--bad-ink); }
+.summary-card.warning .summary-value { color: var(--signal-ink); }
+.summary-card.success .summary-value { color: var(--ok-ink); }
 
 .summary-subtitle {
-  font-size: 0.75rem;
-  color: #64748b;
-  margin-top: 0.25rem;
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin-top: 4px;
 }
 
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.info-label {
-  font-size: 0.813rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #64748b;
-}
-
-.info-value {
-  font-size: 0.938rem;
-  color: #0f172a;
-  font-weight: 500;
-}
-
-.info-value.total-value {
-  font-size: 1.125rem;
-  color: #2563eb;
-  font-weight: 700;
-}
-
-.modal-footer {
-  padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-}
-
-.btn-secondary {
-  padding: 0.625rem 1.25rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 0.875rem;
-  color: #334155;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  font-family: inherit;
-}
-
-.btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
-}
-
-/* Modal transition animations */
+/* Fade only (no entrance motion), <= 150ms */
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.15s ease;
 }
 
 .modal-enter-from,
@@ -438,13 +375,9 @@ const getSummaryCardClass = () => {
   opacity: 0;
 }
 
-.modal-enter-active .modal-container,
-.modal-leave-active .modal-container {
-  transition: transform 0.2s ease;
-}
-
-.modal-enter-from .modal-container,
-.modal-leave-to .modal-container {
-  transform: scale(0.95);
+.info-value.total-value {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
 }
 </style>

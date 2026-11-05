@@ -2,18 +2,18 @@
   <Teleport to="body">
     <Transition name="modal">
       <div v-if="isOpen" class="modal-overlay" @click="close">
-        <div class="modal-container tasks-modal-container" @click.stop>
+        <div class="modal-container" @click.stop>
           <div class="modal-header">
             <h3 class="modal-title">{{ t('tasks.title') }}</h3>
-            <button class="close-button" @click="close">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <button class="close-button" @click="close" aria-label="Close">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
               </svg>
             </button>
           </div>
 
           <div class="modal-body">
-            <!-- Add Task Form -->
+            <!-- Add task form -->
             <div class="task-form">
               <div class="form-row">
                 <div class="form-group flex-1">
@@ -23,7 +23,7 @@
                     v-model="newTask.title"
                     type="text"
                     :placeholder="t('tasks.taskTitlePlaceholder')"
-                    class="task-input"
+                    class="input"
                     @keyup.enter="handleAddTask"
                   />
                 </div>
@@ -35,7 +35,7 @@
                   <select
                     id="task-priority"
                     v-model="newTask.priority"
-                    class="task-select"
+                    class="select"
                   >
                     <option value="high">{{ t('priority.high') }}</option>
                     <option value="medium">{{ t('priority.medium') }}</option>
@@ -49,12 +49,12 @@
                     id="task-due-date"
                     v-model="newTask.dueDate"
                     type="date"
-                    class="task-input"
+                    class="input"
                   />
                 </div>
 
                 <div class="form-group-btn">
-                  <button @click="handleAddTask" class="task-add-btn" :disabled="!newTask.title.trim() || !newTask.dueDate">
+                  <button @click="handleAddTask" class="btn btn-primary" :disabled="!newTask.title.trim() || !newTask.dueDate">
                     {{ t('tasks.addTask') }}
                   </button>
                 </div>
@@ -85,13 +85,15 @@
                     />
                     <span class="task-title" @click="$emit('toggle-task', task.id)">{{ task.title }}</span>
                   </div>
-                  <button @click="$emit('delete-task', task.id)" class="task-delete-btn" title="Delete task">
-                    ×
+                  <button @click="$emit('delete-task', task.id)" class="task-delete-btn" title="Delete task" aria-label="Delete task">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
                   </button>
                 </div>
 
                 <div class="task-footer">
-                  <span class="priority-badge" :class="task.priority">
+                  <span class="status-pill" :class="task.priority">
                     {{ translatePriority(task.priority) }}
                   </span>
                   <div class="task-due-date">
@@ -101,7 +103,7 @@
                     </svg>
                     {{ formatDueDate(task.dueDate) }}
                   </div>
-                  <span class="status-badge" :class="getStatusClass(task.dueDate, task.status)">
+                  <span class="status-pill task-status" :class="getStatusClass(task.dueDate, task.status)">
                     {{ getStatusText(task.dueDate, task.status) }}
                   </span>
                 </div>
@@ -110,7 +112,7 @@
           </div>
 
           <div class="modal-footer">
-            <button class="btn-secondary" @click="close">{{ t('profileDetails.close') }}</button>
+            <button class="btn" @click="close">{{ t('profileDetails.close') }}</button>
           </div>
         </div>
       </div>
@@ -245,108 +247,225 @@ export default {
 </script>
 
 <style scoped>
+/* Shared modal family styles (kept identical across the six modals). */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgba(28, 33, 39, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 2000;
+  padding: 16px; /* 16px viewport margin on mobile */
 }
 
 .modal-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  width: 90%;
-  max-width: 700px;
-  max-height: 85vh;
+  background: var(--panel);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-pop);
+  max-width: 720px;
+  width: 100%;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.tasks-modal-container {
-  max-width: 900px;
-}
-
 .modal-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 2rem;
-  border-bottom: 2px solid #e2e8f0;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--rule);
 }
 
 .modal-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #0f172a;
   margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+  letter-spacing: -0.005em;
+  color: var(--ink);
 }
 
 .close-button {
-  background: none;
-  border: none;
-  color: #64748b;
-  cursor: pointer;
-  padding: 0.5rem;
-  display: flex;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-control);
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--steel-100);
+  color: var(--ink);
 }
 
 .modal-body {
-  padding: 2rem;
-  overflow-y: auto;
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 24px;
 }
 
 .modal-footer {
-  padding: 1.5rem 2rem;
-  border-top: 2px solid #e2e8f0;
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
+  gap: 8px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--rule);
 }
 
-.btn-secondary {
-  padding: 0.75rem 1.5rem;
-  background: #f1f5f9;
-  color: #475569;
-  border: none;
-  border-radius: 8px;
+/* Detail rows: muted label over tabular value, 16px row / 24px column gaps */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+  gap: 16px 24px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-label {
+  font-size: 13px;
   font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  color: var(--ink-muted);
 }
 
-.btn-secondary:hover {
-  background: #e2e8f0;
+.info-value {
+  font-size: 15px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 
-/* Task Form */
+/* Identity header: name, SKU and status badge */
+.item-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 24px;
+}
+
+.item-title-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-name {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.item-sku {
+  font-size: 13px;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.status-pill {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: var(--radius-badge);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 20px;
+  background: var(--steel-200);
+  color: var(--ink-body);
+}
+
+.status-pill.success, .status-pill.completed { background: var(--ok-soft); color: var(--ok-ink); }
+.status-pill.warning, .status-pill.medium, .status-pill.urgent { background: var(--signal-soft); color: var(--signal-ink); }
+.status-pill.danger, .status-pill.high, .status-pill.overdue { background: var(--bad-soft); color: var(--bad-ink); }
+.status-pill.info, .status-pill.low, .status-pill.upcoming { background: var(--info-soft); color: var(--info-ink); }
+
+/* Summary tiles: flat panel with a 3px left status rule */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  padding: 16px;
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--ink-muted);
+  border-radius: var(--radius-panel);
+  background: var(--steel-100);
+}
+
+.summary-card.danger { border-left-color: var(--bad); }
+.summary-card.warning { border-left-color: var(--signal); }
+.summary-card.success { border-left-color: var(--ok); }
+.summary-card.primary { border-left-color: var(--info); }
+
+.summary-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  margin-bottom: 4px;
+}
+
+.summary-value {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 32px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-card.danger .summary-value { color: var(--bad-ink); }
+.summary-card.warning .summary-value { color: var(--signal-ink); }
+.summary-card.success .summary-value { color: var(--ok-ink); }
+
+.summary-subtitle {
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin-top: 4px;
+}
+
+/* Fade only (no entrance motion), <= 150ms */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+/* Add-task form: flat steel panel, controls use global .input/.select */
 .task-form {
-  background: #f8fafc;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  background: var(--steel-100);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-panel);
+  padding: 16px;
 }
 
 .form-row {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .form-row:last-child {
@@ -356,12 +475,9 @@ export default {
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 4px;
   flex: 1;
-}
-
-.form-group.flex-1 {
-  flex: 1;
+  min-width: 0;
 }
 
 .form-group-btn {
@@ -370,252 +486,143 @@ export default {
 }
 
 label {
-  font-size: 0.875rem;
+  font-size: 13px;
   font-weight: 600;
-  color: #475569;
+  color: var(--ink-muted);
 }
 
-.task-input,
-.task-select {
-  padding: 0.75rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: border-color 0.2s ease;
-  font-family: inherit;
-}
-
-.task-input:focus,
-.task-select:focus {
-  outline: none;
-  border-color: #667eea;
-}
-
-.task-select {
-  cursor: pointer;
-  background: white;
-}
-
-.task-add-btn {
-  padding: 0.75rem 1.75rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-  white-space: nowrap;
-  height: fit-content;
-}
-
-.task-add-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-}
-
-.task-add-btn:disabled {
-  opacity: 0.5;
+.btn:disabled {
   cursor: not-allowed;
 }
 
 .tasks-divider {
   height: 1px;
-  background: #e2e8f0;
-  margin: 2rem 0;
+  background: var(--rule);
+  margin: 24px 0;
 }
 
 .no-tasks {
   text-align: center;
-  padding: 3rem;
-  color: #64748b;
-  font-size: 1.1rem;
-  font-style: italic;
+  padding: 32px;
+  color: var(--ink-muted);
+  font-size: 15px;
 }
 
 .tasks-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 8px;
 }
 
+/* Priority is carried by a 3px left rule: high = bad, medium = signal, low = info */
 .task-item {
-  background: white;
-  border: 2px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 1rem 1.25rem;
-  transition: all 0.2s ease;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--ink-muted);
+  border-radius: var(--radius-panel);
+  padding: 12px 16px;
+  transition: background-color 0.15s ease;
 }
 
 .task-item:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background: var(--steel-100);
 }
 
-.task-item.priority-high {
-  border-left: 4px solid #dc2626;
-}
-
-.task-item.priority-medium {
-  border-left: 4px solid #f59e0b;
-}
-
-.task-item.priority-low {
-  border-left: 4px solid #2563eb;
-}
+.task-item.priority-high { border-left-color: var(--bad); }
+.task-item.priority-medium { border-left-color: var(--signal); }
+.task-item.priority-low { border-left-color: var(--info); }
 
 .task-item.completed {
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 .task-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.75rem;
-  gap: 1rem;
+  margin-bottom: 8px;
+  gap: 16px;
 }
 
 .task-check-title {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 12px;
   flex: 1;
+  min-width: 0;
 }
 
 .task-checkbox {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
+  margin: 0;
   cursor: pointer;
-  accent-color: #667eea;
+  accent-color: var(--ink);
   flex-shrink: 0;
 }
 
 .task-title {
   flex: 1;
+  min-width: 0;
   cursor: pointer;
   user-select: none;
-  color: #0f172a;
-  font-size: 1rem;
+  color: var(--ink);
+  font-size: 15px;
   font-weight: 600;
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .task-item.completed .task-title {
   text-decoration: line-through;
-  color: #94a3b8;
+  color: var(--ink-muted);
 }
 
 .task-delete-btn {
   width: 28px;
   height: 28px;
-  background: #ef4444;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 1.25rem;
-  line-height: 1;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0;
   flex-shrink: 0;
+  background: transparent;
+  color: var(--ink-muted);
+  border: none;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .task-delete-btn:hover {
-  background: #dc2626;
-  transform: scale(1.1);
+  background: var(--bad-soft);
+  color: var(--bad-ink);
 }
 
 .task-footer {
   display: flex;
   align-items: center;
-  gap: 1rem;
-}
-
-.priority-badge {
-  font-size: 0.688rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  padding: 0.25rem 0.625rem;
-  border-radius: 4px;
-  letter-spacing: 0.025em;
-}
-
-.priority-badge.high {
-  background: #fecaca;
-  color: #991b1b;
-}
-
-.priority-badge.medium {
-  background: #fed7aa;
-  color: #92400e;
-}
-
-.priority-badge.low {
-  background: #dbeafe;
-  color: #1e40af;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  padding-left: 28px; /* align under the title, past the checkbox */
 }
 
 .task-due-date {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.813rem;
-  color: #64748b;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--ink-muted);
 }
 
-.task-due-date svg {
-  color: #94a3b8;
-}
-
-.status-badge {
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.25rem 0.625rem;
-  border-radius: 4px;
+.task-status {
   margin-left: auto;
 }
 
-.status-badge.overdue {
-  background: #fecaca;
-  color: #991b1b;
-}
-
-.status-badge.urgent {
-  background: #fed7aa;
-  color: #92400e;
-}
-
-.status-badge.upcoming {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.status-badge.completed {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-/* Modal transitions */
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.modal-enter-active .modal-container,
-.modal-leave-active .modal-container {
-  transition: transform 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-.modal-enter-from .modal-container,
-.modal-leave-to .modal-container {
-  transform: scale(0.9);
+@media (max-width: 575.98px) {
+  .form-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 </style>

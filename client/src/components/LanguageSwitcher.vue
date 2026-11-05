@@ -1,7 +1,11 @@
 <template>
-  <div class="language-switcher">
+  <div class="language-switcher" :class="{ 'is-compact': compact }">
     <button
       class="language-button"
+      :title="compact ? localeName : undefined"
+      :aria-label="localeName"
+      aria-haspopup="menu"
+      :aria-expanded="isDropdownOpen"
       @click="toggleDropdown"
       @blur="handleBlur"
     >
@@ -60,6 +64,8 @@ import { useI18n } from '../composables/useI18n'
 
 const { currentLocale, setLocale, availableLocales, localeName } = useI18n()
 
+defineProps({ compact: { type: Boolean, default: false } })
+
 const isDropdownOpen = ref(false)
 
 const languageNames = {
@@ -89,95 +95,70 @@ const selectLanguage = (locale) => {
 </script>
 
 <style scoped>
-.language-switcher {
-  position: relative;
-}
+/* Sidebar footer control on graphite. Dropdown opens upward and aligns left. */
+.language-switcher { position: relative; }
 
 .language-button {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.875rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  gap: 12px;
+  height: 40px;
+  padding: 0 12px;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-control);
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
-  font-size: 0.875rem;
-  color: #334155;
-}
-
-.language-button:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-}
-
-.globe-icon {
-  color: #64748b;
-  flex-shrink: 0;
-}
-
-.language-label {
+  transition: background 120ms ease, color 120ms ease;
+  font-size: 15px;
   font-weight: 500;
+  color: var(--graphite-300);
 }
+.language-button:hover { background: var(--graphite-700); color: #fff; }
+.language-button:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
 
-.chevron {
-  color: #64748b;
-  transition: transform 0.2s ease;
-  flex-shrink: 0;
-}
+.globe-icon { flex-shrink: 0; }
+.language-label { flex: 1; text-align: left; white-space: nowrap; }
+.chevron { flex-shrink: 0; transition: transform 120ms ease; transform: rotate(180deg); }
+.chevron-open { transform: rotate(0deg); }
 
-.chevron-open {
-  transform: rotate(180deg);
-}
+.is-compact .language-button { justify-content: center; padding: 0; }
+.is-compact .language-label,
+.is-compact .chevron { display: none; }
 
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
-  min-width: 160px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  bottom: calc(100% + 8px);
+  left: 0;
+  min-width: 180px;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-pop);
   z-index: 1000;
   overflow: hidden;
+  padding: 4px;
 }
-
 .dropdown-item {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: 12px;
+  height: 36px;
+  padding: 0 12px;
   background: none;
   border: none;
+  border-radius: var(--radius-control);
   text-align: left;
   cursor: pointer;
-  transition: background 0.15s ease;
-  font-family: inherit;
-  font-size: 0.875rem;
+  transition: background 120ms ease;
+  font-size: 15px;
   font-weight: 500;
-  color: #334155;
+  color: var(--ink-body);
 }
-
-.dropdown-item:hover {
-  background: #f8fafc;
-}
-
-.dropdown-item.active {
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-.language-name {
-  flex: 1;
-}
-
-.check-icon {
-  color: #2563eb;
-  flex-shrink: 0;
-}
+.dropdown-item:hover { background: var(--steel-100); }
+.dropdown-item.active { background: var(--info-soft); color: var(--info-ink); }
+.language-name { flex: 1; }
+.check-icon { color: var(--info); flex-shrink: 0; }
 </style>

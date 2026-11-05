@@ -9,21 +9,20 @@
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
       <!-- Revenue & Financial KPIs -->
-      <div class="stats-grid-finance">
-        <div class="stat-card revenue-card">
+      <div class="stats-grid kpi-row">
+        <div class="stat-card">
           <div class="stat-label">{{ t('finance.totalRevenue') }}</div>
           <div class="stat-value">{{ formatCurrency(revenueMetrics.totalRevenue) }}</div>
           <div class="stat-change positive">
-            <span class="change-icon">↑</span>
             {{ t('finance.fromOrders', { count: revenueMetrics.orderCount }) }}
           </div>
         </div>
-        <div class="stat-card cost-card">
+        <div class="stat-card">
           <div class="stat-label">{{ t('finance.totalCosts') }}</div>
           <div class="stat-value">{{ formatCurrency(totalCosts) }}</div>
           <div class="stat-meta">{{ t('finance.costBreakdown') }}</div>
         </div>
-        <div class="stat-card profit-card">
+        <div class="stat-card">
           <div class="stat-label">{{ t('finance.netProfit') }}</div>
           <div class="stat-value">{{ formatCurrency(netProfit) }}</div>
           <div class="stat-meta">{{ profitMargin }}% {{ t('finance.margin') }}</div>
@@ -44,7 +43,7 @@
             <span class="legend-item"><span class="legend-dot cost-color"></span>{{ t('finance.revenueVsCosts.costs') }}</span>
           </div>
         </div>
-        <div class="chart-container">
+        <div class="chart-container panel-body">
           <div class="bar-chart">
             <div class="y-axis">
               <span>{{ currencySymbol }}{{ maxRevenueValue }}K</span>
@@ -77,7 +76,7 @@
             <span class="legend-item"><span class="legend-dot overhead"></span>{{ t('finance.monthlyCostFlow.overhead') }}</span>
           </div>
         </div>
-        <div class="chart-container">
+        <div class="chart-container panel-body">
           <div class="bar-chart">
             <div class="y-axis">
               <span>{{ currencySymbol }}25K</span>
@@ -108,7 +107,7 @@
           <div class="card-header">
             <h3 class="card-title">{{ t('finance.categorySpending.title') }}</h3>
           </div>
-          <div class="category-list">
+          <div class="category-list panel-body">
             <div v-for="category in categorySpending" :key="category.category" class="category-item">
               <div class="category-info">
                 <div class="category-name">{{ translateCategory(category.category) }}</div>
@@ -136,11 +135,11 @@
             <table class="transactions-table">
               <thead>
                 <tr>
-                  <th>{{ t('finance.transactions.id') }}</th>
+                  <th class="nowrap">{{ t('finance.transactions.id') }}</th>
                   <th>{{ t('finance.transactions.description') }}</th>
                   <th>{{ t('finance.transactions.vendor') }}</th>
                   <th>{{ t('finance.transactions.date') }}</th>
-                  <th class="text-right">{{ t('finance.transactions.amount') }}</th>
+                  <th class="num">{{ t('finance.transactions.amount') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -150,11 +149,11 @@
                   class="clickable-row"
                   @click="handleTransactionClick(transaction)"
                 >
-                  <td class="transaction-id">{{ transaction.id.toString().padStart(3, '0') }}</td>
+                  <td class="transaction-id nowrap">{{ transaction.id.toString().padStart(3, '0') }}</td>
                   <td class="transaction-description">{{ transaction.description }}</td>
                   <td class="transaction-vendor">{{ transaction.vendor }}</td>
-                  <td class="transaction-date">{{ formatDateShort(transaction.date) }}</td>
-                  <td class="transaction-amount text-right">{{ currencySymbol }}{{ transaction.amount.toLocaleString() }}</td>
+                  <td class="transaction-date nowrap">{{ formatDateShort(transaction.date) }}</td>
+                  <td class="transaction-amount num">{{ currencySymbol }}{{ transaction.amount.toLocaleString() }}</td>
                 </tr>
               </tbody>
             </table>
@@ -492,361 +491,74 @@ export default {
 </script>
 
 <style scoped>
-.stat-change {
-  margin-top: 0.75rem;
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
+/* Panels/tables/stats come from global classes in App.vue; only view-specific layout here. */
+.kpi-row { margin-bottom: 24px; }
 
-.stat-change.positive {
-  color: #059669;
-}
+.stat-change { margin-top: 8px; font-size: 13px; color: var(--ok-ink); }
+.stat-meta { margin-top: 8px; font-size: 13px; color: var(--ink-muted); }
 
-.stat-change.negative {
-  color: #dc2626;
-}
+.chart-legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; }
+.legend-item { display: flex; align-items: center; gap: 8px; color: var(--ink-muted); }
+.legend-dot { width: 12px; height: 12px; border-radius: 2px; }
 
-.change-icon {
-  font-weight: 700;
-  font-size: 1rem;
-}
+/* Chart palette: primary = info, secondary = ink-muted, highlight = signal */
+.legend-dot.procurement, .bar-segment.procurement { background: var(--info); }
+.legend-dot.operational, .bar-segment.operational { background: var(--ink-muted); }
+.legend-dot.labor, .bar-segment.labor { background: var(--signal); }
+.legend-dot.overhead, .bar-segment.overhead { background: var(--graphite-700); }
+.legend-dot.revenue-color, .revenue-bar { background: var(--info); }
+.legend-dot.cost-color, .cost-bar { background: var(--ink-muted); }
 
-.chart-card {
-  margin-bottom: 1.75rem;
-}
-
-.chart-legend {
-  display: flex;
-  gap: 1.5rem;
-  font-size: 0.875rem;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #64748b;
-}
-
-.legend-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-}
-
-.legend-dot.procurement { background: #3b82f6; }
-.legend-dot.operational { background: #8b5cf6; }
-.legend-dot.labor { background: #10b981; }
-.legend-dot.overhead { background: #f59e0b; }
-.legend-dot.revenue-color { background: #0f172a; }
-.legend-dot.cost-color { background: #ef4444; }
-
-.stats-grid-finance {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.revenue-card {
-  border-left: 4px solid #0f172a;
-}
-
-.cost-card {
-  border-left: 4px solid #ef4444;
-}
-
-.profit-card {
-  border-left: 4px solid #3b82f6;
-}
-
-.stat-meta {
-  margin-top: 0.5rem;
-  font-size: 0.813rem;
-  color: #64748b;
-}
-
-.bar-group-revenue {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  height: 100%;
-}
-
+.bar-group-revenue { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; min-width: 0; }
 .revenue-bars {
-  width: 100%;
-  max-width: 80px;
-  display: flex;
-  gap: 6px;
-  justify-content: center;
-  align-items: flex-end;
-  height: 100%;
-  padding-bottom: 2rem;
+  width: 100%; max-width: 80px; display: flex; gap: 4px;
+  justify-content: center; align-items: flex-end; height: 100%; padding-bottom: 32px;
 }
+.revenue-bar, .cost-bar { width: 50%; max-width: 30px; border-radius: 2px 2px 0 0; cursor: pointer; min-height: 2px; transition: opacity 0.15s ease; }
+.revenue-bar:hover, .cost-bar:hover { opacity: 0.8; }
 
-.revenue-bar, .cost-bar {
-  width: 50%;
-  max-width: 30px;
-  border-radius: 6px 6px 0 0;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  min-height: 4px;
-}
-
-.revenue-bar {
-  background: #0f172a;
-}
-
-.cost-bar {
-  background: #ef4444;
-}
-
-.revenue-bar:hover, .cost-bar:hover {
-  opacity: 0.8;
-  transform: scaleY(1.05);
-}
-
-.chart-container {
-  padding: 1.5rem 0;
-}
-
-.bar-chart {
-  display: flex;
-  gap: 1.5rem;
-  height: 350px;
-}
-
+.bar-chart { display: flex; gap: 16px; height: 350px; }
 .y-axis {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding-right: 1rem;
-  font-size: 0.75rem;
-  color: #94a3b8;
-  border-right: 1px solid #e2e8f0;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding-right: 12px; font-size: 12px; color: var(--ink-muted);
+  font-variant-numeric: tabular-nums; border-right: 1px solid var(--rule);
 }
+/* Baseline rule under the bars (labels sit below it in the 32px bottom padding of each bar group) */
+.chart-area { flex: 1; min-width: 0; display: flex; align-items: flex-end; justify-content: space-around; gap: 8px; }
 
-.chart-area {
-  flex: 1;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-around;
-  gap: 0.5rem;
-}
-
-.bar-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  height: 100%;
-}
-
+.bar-group { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; min-width: 0; }
 .stacked-bar {
-  width: 100%;
-  max-width: 60px;
-  display: flex;
-  flex-direction: column-reverse;
-  align-items: stretch;
-  height: 100%;
-  padding-bottom: 2rem;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
+  width: 100%; max-width: 60px; display: flex; flex-direction: column-reverse;
+  align-items: stretch; height: 100%; padding-bottom: 32px; cursor: pointer; transition: opacity 0.15s ease;
 }
+.stacked-bar:hover { opacity: 0.85; }
+.bar-segment { width: 100%; display: block; }
+.bar-segment:last-child { border-radius: 2px 2px 0 0; }
+.bar-label { margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--ink-muted); }
 
-.stacked-bar:hover {
-  opacity: 0.85;
-}
+.two-column-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 24px; align-items: start; }
+@media (max-width: 1100px) { .two-column-grid { grid-template-columns: minmax(0, 1fr); } }
+.two-column-grid > .card { margin-bottom: 0; }
 
-.bar-segment {
-  width: 100%;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  display: block;
-}
+.category-list { display: flex; flex-direction: column; gap: 20px; }
+.category-item { display: flex; flex-direction: column; gap: 8px; }
+.category-info { display: flex; justify-content: space-between; align-items: center; }
+.category-name { font-weight: 600; color: var(--ink); }
+.category-amount { font-weight: 600; color: var(--ink); font-size: 15px; font-variant-numeric: tabular-nums; }
+.category-bar-container { width: 100%; height: 8px; background: var(--steel-200); border-radius: 2px; overflow: hidden; }
+.category-bar { height: 100%; background: var(--info); border-radius: 2px; }
+.category-meta { display: flex; justify-content: space-between; font-size: 13px; font-variant-numeric: tabular-nums; }
+.percentage { color: var(--ink-muted); }
+.change { font-weight: 600; }
+.change.positive { color: var(--ok-ink); }
+.change.negative { color: var(--bad-ink); }
 
-.bar-segment:first-child {
-  border-radius: 0 0 6px 6px;
-}
-
-.bar-segment:last-child {
-  border-radius: 6px 6px 0 0;
-}
-
-.bar-segment.procurement { background: #3b82f6; }
-.bar-segment.operational { background: #8b5cf6; }
-.bar-segment.labor { background: #10b981; }
-.bar-segment.overhead { background: #f59e0b; }
-
-.bar-segment:hover {
-  opacity: 0.8;
-}
-
-.bar-label {
-  margin-top: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #64748b;
-}
-
-.two-column-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 1.75rem;
-}
-
-.category-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.category-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.category-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.category-name {
-  font-weight: 600;
-  color: #0f172a;
-}
-
-.category-amount {
-  font-weight: 700;
-  color: #2563eb;
-  font-size: 1.125rem;
-}
-
-.category-bar-container {
-  width: 100%;
-  height: 8px;
-  background: #f1f5f9;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.category-bar {
-  height: 100%;
-  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
-  border-radius: 4px;
-  transition: width 0.6s ease;
-}
-
-.category-meta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.813rem;
-}
-
-.percentage {
-  color: #64748b;
-}
-
-.change {
-  font-weight: 600;
-}
-
-.change.positive {
-  color: #059669;
-}
-
-.change.negative {
-  color: #dc2626;
-}
-
-.transactions-card {
-  display: flex;
-  flex-direction: column;
-}
-
-.transactions-table-container {
-  overflow-y: auto;
-  max-height: 400px;
-}
-
-.transactions-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.transactions-table thead {
-  position: sticky;
-  top: 0;
-  background: #f8fafc;
-  z-index: 1;
-}
-
-.transactions-table th {
-  text-align: left;
-  padding: 0.625rem 0.75rem;
-  font-weight: 600;
-  color: #475569;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.transactions-table th.text-right {
-  text-align: right;
-}
-
-.transactions-table td {
-  padding: 0.75rem 0.75rem;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 0.875rem;
-}
-
-.transactions-table tbody tr {
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-}
-
-.transactions-table tbody tr:hover {
-  background: #f8fafc;
-}
-
-.transactions-table tbody tr.clickable-row:hover {
-  background: #eff6ff;
-}
-
-.transaction-id {
-  color: #64748b;
-  font-weight: 500;
-  font-family: 'Monaco', 'Courier New', monospace;
-  font-size: 0.813rem;
-}
-
-.transaction-description {
-  color: #0f172a;
-  font-weight: 500;
-}
-
-.transaction-vendor {
-  color: #64748b;
-}
-
-.transaction-date {
-  color: #64748b;
-  font-size: 0.813rem;
-}
-
-.transaction-amount {
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.text-right {
-  text-align: right;
-}
+/* Sticky head is scoped to this table's own scroll container, so top: 0 is correct here. */
+.transactions-table-container { overflow-y: auto; overflow-x: auto; max-height: 400px; }
+.transactions-table { width: 100%; }
+.transactions-table thead th { position: sticky; top: 0; z-index: 1; background: var(--steel-200); }
+.transactions-table tbody tr { cursor: pointer; }
+.transaction-id, .transaction-vendor, .transaction-date { color: var(--ink-muted); }
+.transaction-description { color: var(--ink); font-weight: 500; }
+.transaction-amount { font-weight: 600; color: var(--ink); }
 </style>
