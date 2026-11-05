@@ -358,6 +358,44 @@ export default {
     selectLanguage: 'Select language'
   },
 
+  // Purchase orders (amounts are always shown in USD)
+  purchaseOrder: {
+    createAction: 'Create PO',
+    viewAction: 'View PO',
+    createTitle: 'Create purchase order',
+    viewTitle: 'Purchase order',
+    sku: 'SKU',
+    orderId: 'Order ID',
+    shortage: 'Shortage',
+    units: '{count} units',
+    supplier: 'Supplier name',
+    quantity: 'Quantity',
+    unitCost: 'Unit cost (USD)',
+    total: 'Total (USD)',
+    expectedDelivery: 'Expected delivery date',
+    createdDate: 'Created',
+    notes: 'Notes',
+    notesOptional: 'Notes (optional)',
+    submit: 'Create purchase order',
+    submitting: 'Creating...',
+    loading: 'Loading purchase order...',
+    status: {
+      pending: 'Pending'
+    },
+    errors: {
+      supplierRequired: 'Enter a supplier name.',
+      quantityInvalid: 'Enter a whole number greater than 0.',
+      unitCostInvalid: 'Enter a unit cost of 0 or more.',
+      deliveryRequired: 'Select an expected delivery date.',
+      deliveryPast: 'The delivery date must be today or later.',
+      conflict: 'A purchase order already exists for this item.',
+      notFound: 'Backlog item not found.',
+      generic: 'Could not create the purchase order. Try again.',
+      noneFound: 'No purchase order found for this item',
+      loadFailed: 'Could not load the purchase order.'
+    }
+  },
+
   // Common
   common: {
     loading: 'Loading...',

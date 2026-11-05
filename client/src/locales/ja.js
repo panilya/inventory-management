@@ -358,6 +358,44 @@ export default {
     selectLanguage: '言語を選択'
   },
 
+  // Purchase orders (amounts are always shown in USD)
+  purchaseOrder: {
+    createAction: '発注書を作成',
+    viewAction: '発注書を表示',
+    createTitle: '発注書の作成',
+    viewTitle: '発注書',
+    sku: 'SKU',
+    orderId: '注文ID',
+    shortage: '不足数',
+    units: '{count}個',
+    supplier: '仕入先名',
+    quantity: '数量',
+    unitCost: '単価 (USD)',
+    total: '合計 (USD)',
+    expectedDelivery: '納品予定日',
+    createdDate: '作成日',
+    notes: '備考',
+    notesOptional: '備考 (任意)',
+    submit: '発注書を作成',
+    submitting: '作成中...',
+    loading: '発注書を読み込み中...',
+    status: {
+      pending: '保留中'
+    },
+    errors: {
+      supplierRequired: '仕入先名を入力してください。',
+      quantityInvalid: '1以上の整数を入力してください。',
+      unitCostInvalid: '0以上の単価を入力してください。',
+      deliveryRequired: '納品予定日を選択してください。',
+      deliveryPast: '納品予定日は今日以降にしてください。',
+      conflict: 'この品目の発注書は既に存在します。',
+      notFound: 'バックログ品目が見つかりません。',
+      generic: '発注書を作成できませんでした。もう一度お試しください。',
+      noneFound: 'この品目の発注書はありません',
+      loadFailed: '発注書を読み込めませんでした。'
+    }
+  },
+
   // Common
   common: {
     loading: '読み込み中...',

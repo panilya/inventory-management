@@ -126,9 +126,10 @@
 </template>
 
 <script>
-import { ref, computed, watch, onMounted } from 'vue'
+import { computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
+import { useFilteredData } from '../composables/useFilteredData'
 import { useI18n } from '../composables/useI18n'
 import { formatCurrencyWithDecimals } from '../utils/currency'
 
@@ -146,36 +147,22 @@ export default {
       getCurrentFilters
     } = useFilters()
 
-    const loading = ref(true)
-    const error = ref(null)
-    const quarterlyData = ref([])
-    const monthlyData = ref([])
-
-    const loadData = async () => {
-      try {
-        loading.value = true
-        error.value = null
+    const { data: reportData, loading, error } = useFilteredData(
+      async () => {
         const filters = getCurrentFilters()
         const [quarterly, monthly] = await Promise.all([
           api.getQuarterlyReports(filters),
           api.getMonthlyTrends(filters)
         ])
-        quarterlyData.value = quarterly
-        monthlyData.value = monthly
-      } catch (err) {
-        error.value = t('reports.loadError', { message: err.message })
-      } finally {
-        loading.value = false
+        return { quarterly, monthly }
+      },
+      {
+        watchSources: [selectedPeriod, selectedLocation, selectedCategory, selectedStatus],
+        errorMessage: (err) => t('reports.loadError', { message: err.message })
       }
-    }
-
-    watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
-      loadData()
-    })
-
-    onMounted(() => {
-      loadData()
-    })
+    )
+    const quarterlyData = computed(() => reportData.value?.quarterly || [])
+    const monthlyData = computed(() => reportData.value?.monthly || [])
 
     const isEmpty = computed(() => quarterlyData.value.length === 0 && monthlyData.value.length === 0)
 

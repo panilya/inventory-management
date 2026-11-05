@@ -90,9 +90,10 @@
 </template>
 
 <script>
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
+import { useFilteredData } from '../composables/useFilteredData'
 import { useI18n } from '../composables/useI18n'
 import { formatCurrency, formatCurrencyWithDecimals } from '../utils/currency'
 
@@ -100,10 +101,6 @@ export default {
   name: 'Orders',
   setup() {
     const { t, currentCurrency, intlLocale, translateProductName, translateCustomerName } = useI18n()
-
-    const loading = ref(true)
-    const error = ref(null)
-    const orders = ref([])
 
     // Use shared filters
     const {
@@ -114,29 +111,18 @@ export default {
       getCurrentFilters
     } = useFilters()
 
-    const loadOrders = async () => {
-      try {
-        loading.value = true
-        const filters = getCurrentFilters()
-        const fetchedOrders = await api.getOrders(filters)
-
+    const { data: ordersData, loading, error } = useFilteredData(
+      async () => {
+        const fetchedOrders = await api.getOrders(getCurrentFilters())
         // Sort orders by order_date (earliest first)
-        orders.value = fetchedOrders.sort((a, b) => {
-          const dateA = new Date(a.order_date)
-          const dateB = new Date(b.order_date)
-          return dateA - dateB
-        })
-      } catch (err) {
-        error.value = 'Failed to load orders: ' + err.message
-      } finally {
-        loading.value = false
+        return fetchedOrders.sort((a, b) => new Date(a.order_date) - new Date(b.order_date))
+      },
+      {
+        watchSources: [selectedPeriod, selectedLocation, selectedCategory, selectedStatus],
+        errorMessage: (err) => 'Failed to load orders: ' + err.message
       }
-    }
-
-    // Watch for filter changes and reload data
-    watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
-      loadOrders()
-    })
+    )
+    const orders = computed(() => ordersData.value || [])
 
     const itemsLabel = (count) => t(count === 1 ? 'orders.itemsCountOne' : 'orders.itemsCount', { count })
 
@@ -170,8 +156,6 @@ export default {
         day: 'numeric'
       })
     }
-
-    onMounted(loadOrders)
 
     return {
       t,

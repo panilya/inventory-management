@@ -197,18 +197,18 @@
                 </td>
                 <td class="nowrap">
                   <button
-                    v-if="!item.purchase_order_id"
+                    v-if="!item.has_purchase_order"
                     @click.stop="openPOModal(item)"
                     class="btn btn-primary btn-sm"
                   >
-                    Create PO
+                    {{ t('purchaseOrder.createAction') }}
                   </button>
                   <button
                     v-else
                     @click.stop="viewPO(item)"
                     class="btn btn-sm"
                   >
-                    View PO
+                    {{ t('purchaseOrder.viewAction') }}
                   </button>
                 </td>
               </tr>
@@ -283,27 +283,25 @@
 </template>
 
 <script>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
+import { useFilteredData } from '../composables/useFilteredData'
 import { useI18n } from '../composables/useI18n'
 import { formatCurrency } from '../utils/currency'
 import ProductDetailModal from '../components/ProductDetailModal.vue'
 import BacklogDetailModal from '../components/BacklogDetailModal.vue'
+import PurchaseOrderModal from '../components/PurchaseOrderModal.vue'
 
 export default {
   name: 'Dashboard',
   components: {
     ProductDetailModal,
     BacklogDetailModal,
+    PurchaseOrderModal,
   },
   setup() {
     const { t, currentCurrency, intlLocale, translateProductName, translateWarehouse } = useI18n()
-    const loading = ref(true)
-    const error = ref(null)
-    const summary = ref({})
-    const allOrders = ref([])
-    const inventoryItems = ref([])
 
     // Modal state
     const showProductModal = ref(false)
@@ -322,6 +320,26 @@ export default {
       selectedStatus,
       getCurrentFilters
     } = useFilters()
+
+    const { data: dashboardData, loading, error } = useFilteredData(
+      async () => {
+        const filters = getCurrentFilters()
+        const [summaryData, ordersResult, inventoryData, backlogData] = await Promise.all([
+          api.getDashboardSummary(filters),
+          api.getOrders(filters),
+          api.getInventory(filters),
+          api.getBacklog()
+        ])
+        return { summary: summaryData, orders: ordersResult, inventory: inventoryData, backlog: backlogData }
+      },
+      {
+        watchSources: [selectedPeriod, selectedLocation, selectedCategory, selectedStatus],
+        errorMessage: (err) => 'Failed to load dashboard data: ' + err.message
+      }
+    )
+    const summary = computed(() => dashboardData.value?.summary || {})
+    const allOrders = computed(() => dashboardData.value?.orders || [])
+    const inventoryItems = computed(() => dashboardData.value?.inventory || [])
 
     const ordersData = ref({ fulfilled: 187, goal: 200 })
     const fillRate = ref(96.8)
@@ -533,7 +551,7 @@ export default {
         .slice(0, 12)
     })
 
-    const allBacklogItems = ref([])
+    const allBacklogItems = computed(() => dashboardData.value?.backlog || [])
 
     // Filter backlog based on inventory filters
     const backlogItems = computed(() => {
@@ -545,29 +563,6 @@ export default {
       const validSkus = new Set(inventoryItems.value.map(item => item.sku))
       return allBacklogItems.value.filter(b => validSkus.has(b.item_sku))
     })
-
-    const loadData = async () => {
-      try {
-        loading.value = true
-        const filters = getCurrentFilters()
-
-        const [summaryData, ordersData, inventoryData, backlogData] = await Promise.all([
-          api.getDashboardSummary(filters),
-          api.getOrders(filters),
-          api.getInventory(filters),
-          api.getBacklog()
-        ])
-
-        summary.value = summaryData
-        allOrders.value = ordersData
-        inventoryItems.value = inventoryData
-        allBacklogItems.value = backlogData
-      } catch (err) {
-        error.value = 'Failed to load dashboard data: ' + err.message
-      } finally {
-        loading.value = false
-      }
-    }
 
     const calculatePercentage = (value, goal) => {
       return ((value / goal) * 100).toFixed(2)
@@ -649,21 +644,19 @@ export default {
     }
 
     const handlePOCreated = (poData) => {
-      // Update the backlog item with the new PO ID
-      const item = allBacklogItems.value.find(b => b.id === poData.backlog_item_id)
-      if (item) {
-        item.purchase_order_id = poData.id
-        item.purchase_order = poData
+      // dashboardData is a shallowRef, so replace the backlog item immutably to flip
+      // its row to "View PO" without refetching (a later reload syncs with the server)
+      const current = dashboardData.value
+      if (current) {
+        dashboardData.value = {
+          ...current,
+          backlog: current.backlog.map(b =>
+            b.id === poData.backlog_item_id ? { ...b, has_purchase_order: true } : b
+          )
+        }
       }
       showPOModal.value = false
     }
-
-    // Watch for filter changes and reload data
-    watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
-      loadData()
-    })
-
-    onMounted(loadData)
 
     return {
       t,

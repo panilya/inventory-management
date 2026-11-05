@@ -358,6 +358,44 @@ export default {
     selectLanguage: 'Sprache auswählen'
   },
 
+  // Purchase orders (amounts are always shown in USD)
+  purchaseOrder: {
+    createAction: 'Bestellung anlegen',
+    viewAction: 'Bestellung anzeigen',
+    createTitle: 'Bestellung anlegen',
+    viewTitle: 'Bestellung',
+    sku: 'SKU',
+    orderId: 'Auftrags-ID',
+    shortage: 'Fehlmenge',
+    units: '{count} Stück',
+    supplier: 'Lieferantenname',
+    quantity: 'Menge',
+    unitCost: 'Stückkosten (USD)',
+    total: 'Gesamt (USD)',
+    expectedDelivery: 'Voraussichtliches Lieferdatum',
+    createdDate: 'Erstellt',
+    notes: 'Notizen',
+    notesOptional: 'Notizen (optional)',
+    submit: 'Bestellung anlegen',
+    submitting: 'Wird angelegt...',
+    loading: 'Bestellung wird geladen...',
+    status: {
+      pending: 'Ausstehend'
+    },
+    errors: {
+      supplierRequired: 'Geben Sie einen Lieferantennamen ein.',
+      quantityInvalid: 'Geben Sie eine ganze Zahl größer als 0 ein.',
+      unitCostInvalid: 'Geben Sie Stückkosten ab 0 ein.',
+      deliveryRequired: 'Wählen Sie ein Lieferdatum.',
+      deliveryPast: 'Das Lieferdatum muss heute oder später liegen.',
+      conflict: 'Für diesen Artikel existiert bereits eine Bestellung.',
+      notFound: 'Rückstandsposition nicht gefunden.',
+      generic: 'Die Bestellung konnte nicht angelegt werden. Versuchen Sie es erneut.',
+      noneFound: 'Keine Bestellung für diesen Artikel gefunden',
+      loadFailed: 'Die Bestellung konnte nicht geladen werden.'
+    }
+  },
+
   // Common
   common: {
     loading: 'Wird geladen...',

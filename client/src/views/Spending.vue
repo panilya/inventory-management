@@ -171,9 +171,10 @@
 </template>
 
 <script>
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
+import { useFilteredData } from '../composables/useFilteredData'
 import { useI18n } from '../composables/useI18n'
 import { formatCurrency as formatCurrencyUtil } from '../utils/currency'
 import CostDetailModal from '../components/CostDetailModal.vue'
@@ -185,13 +186,6 @@ export default {
   },
   setup() {
     const { t, currentCurrency, intlLocale } = useI18n()
-    const loading = ref(true)
-    const error = ref(null)
-    const allMonthlySpending = ref([])
-    const allCategorySpending = ref([])
-    const allTransactions = ref([])
-    const summaryData = ref({})
-    const allOrders = ref([])
 
     // Modal state
     const showCostModal = ref(false)
@@ -346,28 +340,25 @@ export default {
       return Math.ceil(max / 1000) // Return in K
     })
 
-    const loadData = async () => {
-      try {
-        loading.value = true
-        const [summaryRes, monthlyRes, categoryRes, transactionsRes, ordersRes] = await Promise.all([
+    // No watchSources: spending endpoints take no filters, the period filter is applied client-side
+    const { data: financeData, loading, error } = useFilteredData(
+      async () => {
+        const [summary, monthly, categories, transactions, orders] = await Promise.all([
           api.getSpendingSummary(),
           api.getMonthlySpending(),
           api.getCategorySpending(),
           api.getTransactions(),
           api.getOrders()
         ])
-
-        summaryData.value = summaryRes
-        allMonthlySpending.value = monthlyRes
-        allCategorySpending.value = categoryRes
-        allTransactions.value = transactionsRes
-        allOrders.value = ordersRes
-      } catch (err) {
-        error.value = 'Failed to load financial data: ' + err.message
-      } finally {
-        loading.value = false
-      }
-    }
+        return { summary, monthly, categories, transactions, orders }
+      },
+      { errorMessage: (err) => 'Failed to load financial data: ' + err.message }
+    )
+    const summaryData = computed(() => financeData.value?.summary || {})
+    const allMonthlySpending = computed(() => financeData.value?.monthly || [])
+    const allCategorySpending = computed(() => financeData.value?.categories || [])
+    const allTransactions = computed(() => financeData.value?.transactions || [])
+    const allOrders = computed(() => financeData.value?.orders || [])
 
     // Watch for period filter changes
     watch([selectedPeriod], () => {
@@ -444,15 +435,13 @@ export default {
 
     const handleTransactionClick = (transaction) => {
       console.log('Transaction clicked:', transaction)
-      alert(`Transaction Details:\n\nID: ${transaction.id}\nDescription: ${transaction.description}\nVendor: ${transaction.vendor}\nDate: ${formatDateShort(transaction.date)}\nAmount: $${transaction.amount.toLocaleString()}`)
+      alert(`Transaction Details:\n\nID: ${transaction.id}\nDescription: ${transaction.description}\nVendor: ${transaction.vendor}\nDate: ${formatDateShort(transaction.date)}\nAmount: ${formatCurrency(transaction.amount)}`)
     }
 
     const showCostDetail = (monthData) => {
       selectedCostData.value = monthData
       showCostModal.value = true
     }
-
-    onMounted(loadData)
 
     return {
       t,

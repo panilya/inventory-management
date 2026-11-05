@@ -80,9 +80,10 @@
 </template>
 
 <script>
-import { ref, onMounted, watch, computed } from 'vue'
+import { computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
+import { useFilteredData } from '../composables/useFilteredData'
 import { useI18n } from '../composables/useI18n'
 
 export default {
@@ -91,13 +92,29 @@ export default {
     const { t } = useI18n()
     // Priority values arrive lowercase from the API; map to the translated label
     const priorityLabel = (p) => (['high', 'medium', 'low'].includes(p) ? t(`priority.${p}`) : p)
-    const loading = ref(true)
-    const error = ref(null)
-    const allBacklogItems = ref([])
-    const inventoryItems = ref([])
 
     // Use shared filters
     const { selectedLocation, selectedCategory, getCurrentFilters } = useFilters()
+
+    const { data: backlogData, loading, error } = useFilteredData(
+      async () => {
+        const filters = getCurrentFilters()
+        const [backlog, inventory] = await Promise.all([
+          api.getBacklog(),
+          api.getInventory({
+            warehouse: filters.warehouse,
+            category: filters.category
+          })
+        ])
+        return { backlog, inventory }
+      },
+      {
+        watchSources: [selectedLocation, selectedCategory],
+        errorMessage: (err) => 'Failed to load backlog: ' + err.message
+      }
+    )
+    const allBacklogItems = computed(() => backlogData.value?.backlog || [])
+    const inventoryItems = computed(() => backlogData.value?.inventory || [])
 
     // Filter backlog based on inventory filters
     const backlogItems = computed(() => {
@@ -110,38 +127,9 @@ export default {
       return allBacklogItems.value.filter(b => validSkus.has(b.item_sku))
     })
 
-    const loadBacklog = async () => {
-      try {
-        loading.value = true
-        const filters = getCurrentFilters()
-
-        const [backlogData, inventoryData] = await Promise.all([
-          api.getBacklog(),
-          api.getInventory({
-            warehouse: filters.warehouse,
-            category: filters.category
-          })
-        ])
-
-        allBacklogItems.value = backlogData
-        inventoryItems.value = inventoryData
-      } catch (err) {
-        error.value = 'Failed to load backlog: ' + err.message
-      } finally {
-        loading.value = false
-      }
-    }
-
     const getBacklogByPriority = (priority) => {
       return backlogItems.value.filter(item => item.priority === priority)
     }
-
-    // Watch for filter changes and reload data
-    watch([selectedLocation, selectedCategory], () => {
-      loadBacklog()
-    })
-
-    onMounted(loadBacklog)
 
     return {
       priorityLabel,

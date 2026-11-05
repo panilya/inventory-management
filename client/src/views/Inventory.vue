@@ -84,9 +84,10 @@
 </template>
 
 <script>
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
+import { useFilteredData } from '../composables/useFilteredData'
 import { useI18n } from '../composables/useI18n'
 import { formatCurrencyWithDecimals } from '../utils/currency'
 import InventoryDetailModal from '../components/InventoryDetailModal.vue'
@@ -100,9 +101,6 @@ export default {
     const { t, currentCurrency, translateProductName, translateWarehouse } = useI18n()
 
 
-    const loading = ref(true)
-    const error = ref(null)
-    const items = ref([])
     const searchQuery = ref('')
 
     // Modal state
@@ -111,6 +109,22 @@ export default {
 
     // Use shared filters
     const { selectedLocation, selectedCategory, getCurrentFilters } = useFilters()
+
+    const { data: itemsData, loading, error } = useFilteredData(
+      () => {
+        const filters = getCurrentFilters()
+        // Inventory doesn't support month/status filters, only warehouse and category
+        return api.getInventory({
+          warehouse: filters.warehouse,
+          category: filters.category
+        })
+      },
+      {
+        watchSources: [selectedLocation, selectedCategory],
+        errorMessage: (err) => 'Failed to load inventory: ' + err.message
+      }
+    )
+    const items = computed(() => itemsData.value || [])
 
     // Stock status order for sorting (using status keys)
     const STATUS_ORDER = { 'lowStock': 0, 'adequate': 1, 'inStock': 2 }
@@ -147,27 +161,6 @@ export default {
       })
     })
 
-    const loadInventory = async () => {
-      try {
-        loading.value = true
-        const filters = getCurrentFilters()
-        // Inventory doesn't support month/status filters, only warehouse and category
-        items.value = await api.getInventory({
-          warehouse: filters.warehouse,
-          category: filters.category
-        })
-      } catch (err) {
-        error.value = 'Failed to load inventory: ' + err.message
-      } finally {
-        loading.value = false
-      }
-    }
-
-    // Watch for filter changes and reload data
-    watch([selectedLocation, selectedCategory], () => {
-      loadInventory()
-    })
-
     const getStockStatus = (item) => {
       const key = getStockStatusKey(item)
       return t(`status.${key}`)
@@ -198,8 +191,6 @@ export default {
       selectedItem.value = item
       showItemModal.value = true
     }
-
-    onMounted(loadInventory)
 
     return {
       t,

@@ -1,7 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import date
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
@@ -114,11 +115,30 @@ class PurchaseOrder(BaseModel):
 
 class CreatePurchaseOrderRequest(BaseModel):
     backlog_item_id: str
-    supplier_name: str
-    quantity: int
-    unit_cost: float
+    supplier_name: str = Field(min_length=1, max_length=200)
+    quantity: int = Field(gt=0)
+    unit_cost: float = Field(ge=0)
     expected_delivery_date: str
-    notes: Optional[str] = None
+    notes: Optional[str] = Field(default=None, max_length=1000)
+
+    @field_validator("supplier_name")
+    @classmethod
+    def supplier_not_blank(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("supplier_name must not be blank")
+        return value
+
+    @field_validator("expected_delivery_date")
+    @classmethod
+    def delivery_date_is_iso(cls, value: str) -> str:
+        # Keep the stored value a plain YYYY-MM-DD string (matches the PurchaseOrder model),
+        # but reject anything that isn't a real calendar date.
+        try:
+            date.fromisoformat(value)
+        except ValueError:
+            raise ValueError("expected_delivery_date must be a valid YYYY-MM-DD date")
+        return value
 
 class QuarterlyReport(BaseModel):
     quarter: str
@@ -192,6 +212,34 @@ def get_backlog():
         item_dict["has_purchase_order"] = has_po
         result.append(item_dict)
     return result
+
+@app.post("/api/purchase-orders", response_model=PurchaseOrder, status_code=201)
+def create_purchase_order(request: CreatePurchaseOrderRequest):
+    """Create a purchase order for a backlog item (one PO per backlog item)."""
+    if not any(item["id"] == request.backlog_item_id for item in backlog_items):
+        raise HTTPException(status_code=404, detail=f"Backlog item {request.backlog_item_id} not found")
+    if any(po["backlog_item_id"] == request.backlog_item_id for po in purchase_orders):
+        raise HTTPException(status_code=409, detail=f"A purchase order already exists for backlog item {request.backlog_item_id}")
+
+    # In-memory only, like the rest of the mock data: POs reset when the server restarts.
+    # IDs continue from the highest existing PO number so they stay unique after deletions/reloads.
+    next_number = max((int(po["id"].split("-")[-1]) for po in purchase_orders if po["id"].split("-")[-1].isdigit()), default=0) + 1
+    purchase_order = {
+        "id": f"PO-{next_number:04d}",
+        **request.model_dump(),
+        "status": "pending",
+        "created_date": date.today().isoformat(),
+    }
+    purchase_orders.append(purchase_order)
+    return purchase_order
+
+@app.get("/api/purchase-orders/{backlog_item_id}", response_model=PurchaseOrder)
+def get_purchase_order_by_backlog_item(backlog_item_id: str):
+    """Get the purchase order created for a backlog item."""
+    purchase_order = next((po for po in purchase_orders if po["backlog_item_id"] == backlog_item_id), None)
+    if not purchase_order:
+        raise HTTPException(status_code=404, detail=f"Purchase order for backlog item {backlog_item_id} not found")
+    return purchase_order
 
 @app.get("/api/dashboard/summary")
 def get_dashboard_summary(

@@ -102,22 +102,39 @@
 </template>
 
 <script>
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
+import { useFilteredData } from '../composables/useFilteredData'
 import { useI18n } from '../composables/useI18n'
 
 export default {
   name: 'Demand',
   setup() {
     const { t, currentLocale } = useI18n()
-    const loading = ref(true)
-    const error = ref(null)
-    const allForecasts = ref([])
-    const inventoryItems = ref([])
 
     // Use shared filters
     const { selectedLocation, selectedCategory, getCurrentFilters } = useFilters()
+
+    const { data: demandData, loading, error } = useFilteredData(
+      async () => {
+        const filters = getCurrentFilters()
+        const [forecastsData, inventoryData] = await Promise.all([
+          api.getDemandForecasts(),
+          api.getInventory({
+            warehouse: filters.warehouse,
+            category: filters.category
+          })
+        ])
+        return { forecasts: forecastsData, inventory: inventoryData }
+      },
+      {
+        watchSources: [selectedLocation, selectedCategory],
+        errorMessage: (err) => 'Failed to load demand forecasts: ' + err.message
+      }
+    )
+    const allForecasts = computed(() => demandData.value?.forecasts || [])
+    const inventoryItems = computed(() => demandData.value?.inventory || [])
 
     // Filter forecasts based on inventory filters
     const forecasts = computed(() => {
@@ -128,33 +145,6 @@ export default {
       // Get SKUs of items that match the filters
       const validSkus = new Set(inventoryItems.value.map(item => item.sku))
       return allForecasts.value.filter(f => validSkus.has(f.item_sku))
-    })
-
-    const loadForecasts = async () => {
-      try {
-        loading.value = true
-        const filters = getCurrentFilters()
-
-        const [forecastsData, inventoryData] = await Promise.all([
-          api.getDemandForecasts(),
-          api.getInventory({
-            warehouse: filters.warehouse,
-            category: filters.category
-          })
-        ])
-
-        allForecasts.value = forecastsData
-        inventoryItems.value = inventoryData
-      } catch (err) {
-        error.value = 'Failed to load demand forecasts: ' + err.message
-      } finally {
-        loading.value = false
-      }
-    }
-
-    // Watch for filter changes and reload data
-    watch([selectedLocation, selectedCategory], () => {
-      loadForecasts()
     })
 
     // Singular/plural card meta ("1 item" vs "3 items")
@@ -208,8 +198,6 @@ export default {
       }
       return period
     }
-
-    onMounted(loadForecasts)
 
     return {
       t,
