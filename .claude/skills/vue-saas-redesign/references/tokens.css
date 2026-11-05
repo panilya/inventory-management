@@ -1,0 +1,117 @@
+/*
+ * Design tokens for a light SaaS interface.
+ * Adapt before use: map the app's existing accent/status colors and font
+ * into these variables instead of replacing the brand.
+ */
+:root {
+  /* ---- Spacing: 4px scale ---- */
+  --space-0: 0;
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px */
+
+  /* ---- Typography ---- */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --text-xs: 0.75rem;    /* 12px - badges, table headers */
+  --text-sm: 0.8125rem;  /* 13px - secondary text, nav labels */
+  --text-base: 0.875rem; /* 14px - body, table cells */
+  --text-md: 1rem;       /* 16px - card titles */
+  --text-lg: 1.125rem;   /* 18px - section titles */
+  --text-xl: 1.25rem;    /* 20px - topbar title */
+  --text-2xl: 1.5rem;    /* 24px - page title */
+  --text-3xl: 1.875rem;  /* 30px - KPI values */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --tracking-tight: -0.015em;
+
+  /* ---- Neutral palette (slate) ---- */
+  --color-bg: #f8fafc;            /* app background behind content */
+  --color-surface: #ffffff;       /* cards, sidebar, topbar */
+  --color-surface-muted: #f1f5f9; /* hover rows, subtle fills */
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-text: #0f172a;          /* headings, primary text */
+  --color-text-body: #334155;     /* body copy, table cells */
+  --color-text-muted: #64748b;    /* labels, descriptions */
+  --color-text-subtle: #94a3b8;   /* placeholders, disabled */
+
+  /* ---- Accent (replace with the app's brand color if it has one) ---- */
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-soft: #eff6ff;   /* active nav background */
+  --color-accent-contrast: #ffffff;
+  --color-focus: rgba(37, 99, 235, 0.35);
+
+  /* ---- Status ---- */
+  --color-success: #059669;
+  --color-success-soft: #d1fae5;
+  --color-success-text: #065f46;
+  --color-warning: #d97706;
+  --color-warning-soft: #fef3c7;
+  --color-warning-text: #92400e;
+  --color-danger: #dc2626;
+  --color-danger-soft: #fee2e2;
+  --color-danger-text: #991b1b;
+  --color-info: #2563eb;
+  --color-info-soft: #dbeafe;
+  --color-info-text: #1e40af;
+
+  /* ---- Radius ---- */
+  --radius-sm: 6px;   /* badges, inputs */
+  --radius-md: 8px;   /* buttons, nav items */
+  --radius-lg: 12px;  /* cards, modals */
+  --radius-full: 9999px;
+
+  /* ---- Elevation ---- */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12);
+
+  /* ---- Motion ---- */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast: 120ms;
+  --duration: 200ms;
+
+  /* ---- Layout ---- */
+  --sidebar-w: 240px;
+  --sidebar-w-collapsed: 64px;
+  --topbar-h: 56px;
+  --content-max-w: 1440px;
+  --content-pad-x: var(--space-8);
+  --content-pad-y: var(--space-6);
+  --control-h: 36px;  /* buttons, inputs, selects */
+
+  /* ---- Layers ----
+     Re-base these on the app's existing z-index values (grep for z-index): the shell must sit
+     below the app's dropdowns and modals. Don't renumber existing modals to fit these. */
+  --z-topbar: 30;
+  --z-sidebar: 40;
+  --z-overlay: 50;
+  --z-drawer: 60;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --content-pad-x: var(--space-4);
+    --content-pad-y: var(--space-4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration: 0ms;
+  }
+}
