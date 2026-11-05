@@ -1,20 +1,28 @@
 import { ref, computed } from 'vue'
 import en from '../locales/en'
 import ja from '../locales/ja'
+import de from '../locales/de'
 
 const translations = {
   en,
-  ja
+  ja,
+  de
 }
 
 // Load saved locale from localStorage, default to 'en'
 const savedLocale = localStorage.getItem('app-locale') || 'en'
 const currentLocale = ref(savedLocale)
 
-// Currency is automatically set based on locale (en -> USD, ja -> JPY)
-const currentCurrency = computed(() => {
-  return currentLocale.value === 'ja' ? 'JPY' : 'USD'
-})
+// Currency is automatically set based on locale (en -> USD, ja -> JPY, de -> EUR)
+const LOCALE_CURRENCY = { en: 'USD', ja: 'JPY', de: 'EUR' }
+const currentCurrency = computed(() => LOCALE_CURRENCY[currentLocale.value] || 'USD')
+
+// BCP 47 tag for Intl/toLocaleDateString so views don't hardcode per-language ternaries
+const INTL_LOCALE = { en: 'en-US', ja: 'ja-JP', de: 'de-DE' }
+const intlLocale = computed(() => INTL_LOCALE[currentLocale.value] || 'en-US')
+
+// Native-language names shown in the language switcher
+const LOCALE_NAMES = { en: 'English', ja: '日本語', de: 'Deutsch' }
 
 export function useI18n() {
   const t = (key, params = {}) => {
@@ -66,28 +74,17 @@ export function useI18n() {
 
   const availableLocales = computed(() => Object.keys(translations))
 
-  const localeName = computed(() => {
-    const names = {
-      en: 'English',
-      ja: '日本語'
-    }
-    return names[currentLocale.value] || currentLocale.value
-  })
+  const localeName = computed(() => LOCALE_NAMES[currentLocale.value] || currentLocale.value)
+  const getLocaleName = (locale) => LOCALE_NAMES[locale] || locale
 
   // Translate product names
   const translateProductName = (productName) => {
-    if (currentLocale.value === 'ja' && translations.ja.productNames[productName]) {
-      return translations.ja.productNames[productName]
-    }
-    return productName
+    return translations[currentLocale.value]?.productNames?.[productName] || productName
   }
 
   // Translate customer names
   const translateCustomerName = (customerName) => {
-    if (currentLocale.value === 'ja' && translations.ja.customerNames[customerName]) {
-      return translations.ja.customerNames[customerName]
-    }
-    return customerName
+    return translations[currentLocale.value]?.customerNames?.[customerName] || customerName
   }
 
   // Translate warehouse names
@@ -111,6 +108,12 @@ export function useI18n() {
 
       return warehouseName
     }
+    if (currentLocale.value === 'de') {
+      if (warehouseName === 'Tokyo') return 'Tokio'
+      if (warehouseName.startsWith('Warehouse ')) {
+        return warehouseName.replace('Warehouse ', 'Lager ')
+      }
+    }
     return warehouseName
   }
 
@@ -119,8 +122,10 @@ export function useI18n() {
     setLocale,
     currentLocale: computed(() => currentLocale.value),
     currentCurrency,
+    intlLocale,
     availableLocales,
     localeName,
+    getLocaleName,
     translateProductName,
     translateCustomerName,
     translateWarehouse

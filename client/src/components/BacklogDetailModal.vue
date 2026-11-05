@@ -82,7 +82,7 @@
 import { computed } from 'vue'
 import { useI18n } from '../composables/useI18n'
 
-const { t, translateProductName } = useI18n()
+const { t, translateProductName, intlLocale } = useI18n()
 
 const props = defineProps({
   isOpen: {
@@ -115,7 +115,7 @@ const close = () => {
 const formatDate = (dateString) => {
   if (!dateString) return 'N/A'
   const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString(intlLocale.value, {
     year: 'numeric',
     month: 'long',
     day: 'numeric'

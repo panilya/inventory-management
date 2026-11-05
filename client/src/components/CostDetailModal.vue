@@ -16,7 +16,7 @@
             <div class="cost-summary">
               <div class="summary-card primary">
                 <div class="summary-label">Total costs</div>
-                <div class="summary-value">{{ currencySymbol }}{{ totalCosts.toLocaleString() }}</div>
+                <div class="summary-value">{{ formatCurrency(totalCosts, currentCurrency) }}</div>
               </div>
             </div>
 
@@ -25,7 +25,7 @@
                 <div class="cost-header">
                   <div class="cost-info">
                     <div class="cost-name">Procurement</div>
-                    <div class="cost-amount">{{ currencySymbol }}{{ costData.procurement.toLocaleString() }}</div>
+                    <div class="cost-amount">{{ formatCurrency(costData.procurement, currentCurrency) }}</div>
                   </div>
                 </div>
                 <div class="cost-percentage">{{ getProcurementPercentage() }}% of total</div>
@@ -35,7 +35,7 @@
                 <div class="cost-header">
                   <div class="cost-info">
                     <div class="cost-name">Operational</div>
-                    <div class="cost-amount">{{ currencySymbol }}{{ costData.operational.toLocaleString() }}</div>
+                    <div class="cost-amount">{{ formatCurrency(costData.operational, currentCurrency) }}</div>
                   </div>
                 </div>
                 <div class="cost-percentage">{{ getOperationalPercentage() }}% of total</div>
@@ -45,7 +45,7 @@
                 <div class="cost-header">
                   <div class="cost-info">
                     <div class="cost-name">Labor</div>
-                    <div class="cost-amount">{{ currencySymbol }}{{ costData.labor.toLocaleString() }}</div>
+                    <div class="cost-amount">{{ formatCurrency(costData.labor, currentCurrency) }}</div>
                   </div>
                 </div>
                 <div class="cost-percentage">{{ getLaborPercentage() }}% of total</div>
@@ -55,7 +55,7 @@
                 <div class="cost-header">
                   <div class="cost-info">
                     <div class="cost-name">Overhead</div>
-                    <div class="cost-amount">{{ currencySymbol }}{{ costData.overhead.toLocaleString() }}</div>
+                    <div class="cost-amount">{{ formatCurrency(costData.overhead, currentCurrency) }}</div>
                   </div>
                 </div>
                 <div class="cost-percentage">{{ getOverheadPercentage() }}% of total</div>
@@ -75,12 +75,10 @@
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from '../composables/useI18n'
+import { formatCurrency } from '../utils/currency'
 
 const { currentCurrency } = useI18n()
 
-const currencySymbol = computed(() => {
-  return currentCurrency.value === 'JPY' ? '¥' : '$'
-})
 
 const props = defineProps({
   isOpen: {

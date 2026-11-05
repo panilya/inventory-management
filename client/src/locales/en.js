@@ -16,6 +16,33 @@ export default {
     subtitle: 'Inventory management'
   },
 
+  // Reports
+  reports: {
+    title: 'Performance reports',
+    description: 'View quarterly performance metrics and monthly trends',
+    loading: 'Loading reports...',
+    loadError: 'Failed to load reports: {message}',
+    noData: 'No report data for the selected filters',
+    quarterlyPerformance: 'Quarterly performance',
+    monthlyRevenueTrend: 'Monthly revenue trend',
+    monthOverMonth: 'Month-over-month analysis',
+    quarter: 'Quarter',
+    month: 'Month',
+    totalOrders: 'Total orders',
+    totalRevenue: 'Total revenue',
+    avgOrderValue: 'Avg order value',
+    fulfillmentRate: 'Fulfillment rate',
+    orders: 'Orders',
+    revenue: 'Revenue',
+    change: 'Change',
+    growthRate: 'Growth rate',
+    notApplicable: 'N/A',
+    totalRevenueYtd: 'Total revenue (YTD)',
+    avgMonthlyRevenue: 'Avg monthly revenue',
+    totalOrdersYtd: 'Total orders (YTD)',
+    bestQuarter: 'Best performing quarter'
+  },
+
   // Dashboard
   dashboard: {
     title: 'Overview',
@@ -311,13 +338,23 @@ export default {
     priority: 'Priority',
     dueDate: 'Due date',
     addTask: 'Add task',
-    noTasks: 'No tasks yet. Add your first task above!'
+    noTasks: 'No tasks yet. Add your first task above!',
+    today: 'today',
+    tomorrow: 'tomorrow',
+    yesterday: 'yesterday',
+    daysAgo: '{count} days ago',
+    inDays: 'in {count} days',
+    completed: 'Completed',
+    overdue: 'Overdue',
+    dueSoon: 'Due soon',
+    upcoming: 'Upcoming'
   },
 
   // Language
   language: {
     english: 'English',
     japanese: 'Japanese',
+    german: 'German',
     selectLanguage: 'Select language'
   },
 
